@@ -15,7 +15,7 @@ import { ExerciseRecord } from './ExerciseRecord'
 
 /*
   トレーニング中の画面
-  ・下のタブは出さない（記録中にまちがえて別の画面へ行かないように）
+  ・下のタブは出さない（記録中に間違えて別の画面へ行かないように）
   ・種目を押すと、その種目の記録画面へ
 */
 type Props = {
@@ -79,7 +79,7 @@ export function WorkoutScreen({ sessionId, onExit, onReview }: Props) {
         <div className="card">
           <EmptyState
             icon={Dumbbell}
-            text="種目を追加してはじめましょう"
+            text="種目を追加して始めましょう"
             action={
               <button type="button" className="btn btn-primary" onClick={() => setPicking(true)}>
                 <Plus strokeWidth={2} aria-hidden />
@@ -168,7 +168,7 @@ export function WorkoutScreen({ sessionId, onExit, onReview }: Props) {
                 onClick={async () => {
                   await finishSession(sessionId)
                   restTimer.reset()
-                  onExit('おつかれさまでした。記録を保存しました')
+                  onExit('お疲れさまでした。記録を保存しました')
                 }}
               >
                 終える

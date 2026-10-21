@@ -6,7 +6,7 @@ import { formatDuration, formatKg } from '../lib/format'
 
 /*
   1回のトレーニングのまとめを見せる部品（振り返り画面と終了画面で使う）
-  ・数字はすべて記録から計算したもの（客観）。きつさやメモ（主観）は別の場所に出す
+  ・数字は全て記録から計算したもの（客観）。きつさやメモ（主観）は別の場所に出す
 */
 
 /** 1,234 のように3けたで区切る */
@@ -73,7 +73,7 @@ export function ExerciseResults({ summary }: { summary: SessionSummary }) {
               <span className="list-sub num">{main}</span>
               <span className="report-tags">
                 {e.isFirst ? (
-                  <span className="tag">はじめて</span>
+                  <span className="tag">初めて</span>
                 ) : e.change ? (
                   <span className={diff > 0 ? 'tag tag-ok num' : 'tag num'}>
                     前回比 {e.change.label} {diff > 0 ? '+' : diff < 0 ? '−' : '±'}
@@ -122,18 +122,18 @@ export function RirBlock({ summary }: { summary: SessionSummary }) {
   )
 }
 
-/** 計算のしかた（画面で確かめられるように） */
+/** 計算の仕方（画面で確かめられるように） */
 export function CalcHelp() {
   return (
     <details className="calc-help">
-      <summary>計算のしかた</summary>
+      <summary>計算の仕方</summary>
       <ul>
         <li>数えるのは「完了した本番セット」だけです。ウォームアップと、完了していないセットは数えません。</li>
         <li>総挙上量 ＝ 各セットの「重量 × 回数」の合計です。自重の種目と、重量を入れていないセットは数えません（回数だけ数えます）。補助ありのセットは数えます。</li>
         <li>推定1RM ＝ 重量 ×（1 ＋ 回数 ÷ 30）（Epley の式）。1回なら重量そのまま、11回以上は誤差が大きいので出しません。補助ありのセットは使いません。</li>
-        <li>最高重量は、補助なしのセットでいちばん重い重量です。</li>
+        <li>最高重量は、補助なしのセットで一番重い重量です。</li>
         <li>前回比は、同じ種目をやった前回のトレーニングとの差です。重量の種目は最高重量、自重の種目は合計回数で比べます。</li>
-        <li>自己ベストは、これまでのすべての記録と比べて上回ったものです。はじめての種目は比べる相手がないので数えません。</li>
+        <li>自己ベストは、これまでの全ての記録と比べて上回ったものです。初めての種目は比べる相手がないので数えません。</li>
         <li>あと何回は、入れたセットだけを数えます。入れていないセットを推測することはしません。</li>
       </ul>
     </details>

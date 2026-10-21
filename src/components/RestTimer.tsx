@@ -6,9 +6,9 @@ import { remainingMs, restTimer, useRestTimer } from '../lib/restTimer'
 
 /*
   休憩タイマーの帯（画面の下、「セット完了」ボタンの上）
-  ・止まっている：「休憩 1:30」と ±15秒・はじめる。±は次からの最初の秒数として保存
+  ・止まっている：「休憩 1:30」と ±15秒・始める。±は次からの最初の秒数として保存
   ・動いている：残り時間と、減っていく緑のバー。±15秒・一時停止・やめる
-  ・おわり：「休憩おわり」。押すと消える
+  ・終わり：「休憩終わり」。押すと消える
 */
 const STEP = 15
 const MIN = 15
@@ -33,13 +33,13 @@ export function RestTimer() {
         </span>
         <span className="rest-time num">{formatDuration(defaultSec * 1000)}</span>
         <span className="rest-actions">
-          <button type="button" className="rest-btn num" aria-label="休憩を15秒みじかく" onClick={() => setDefault(defaultSec - STEP)}>
+          <button type="button" className="rest-btn num" aria-label="休憩を15秒短く" onClick={() => setDefault(defaultSec - STEP)}>
             −15
           </button>
-          <button type="button" className="rest-btn num" aria-label="休憩を15秒ながく" onClick={() => setDefault(defaultSec + STEP)}>
+          <button type="button" className="rest-btn num" aria-label="休憩を15秒長く" onClick={() => setDefault(defaultSec + STEP)}>
             +15
           </button>
-          <button type="button" className="rest-btn rest-btn-go" aria-label="休憩タイマーをはじめる" onClick={() => restTimer.start(defaultSec)}>
+          <button type="button" className="rest-btn rest-btn-go" aria-label="休憩タイマーを始める" onClick={() => restTimer.start(defaultSec)}>
             <Play strokeWidth={2.4} aria-hidden />
           </button>
         </span>
@@ -52,7 +52,7 @@ export function RestTimer() {
       <button type="button" className="rest rest-done" onClick={() => restTimer.reset()}>
         <span className="rest-label">
           <Timer strokeWidth={2} aria-hidden />
-          休憩おわり
+          休憩終わり
         </span>
         <span className="rest-done-sub">次のセットへ</span>
         <X className="rest-close" strokeWidth={2} aria-label="閉じる" />
@@ -77,10 +77,10 @@ export function RestTimer() {
         {formatDuration(Math.ceil(left / 1000) * 1000)}
       </span>
       <span className="rest-actions">
-        <button type="button" className="rest-btn num" aria-label="15秒へらす" onClick={() => restTimer.add(-STEP)}>
+        <button type="button" className="rest-btn num" aria-label="15秒減らす" onClick={() => restTimer.add(-STEP)}>
           −15
         </button>
-        <button type="button" className="rest-btn num" aria-label="15秒ふやす" onClick={() => restTimer.add(STEP)}>
+        <button type="button" className="rest-btn num" aria-label="15秒増やす" onClick={() => restTimer.add(STEP)}>
           +15
         </button>
         <button

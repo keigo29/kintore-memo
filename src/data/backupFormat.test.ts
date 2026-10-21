@@ -34,7 +34,7 @@ describe('parseBackup', () => {
     expect(parseBackup('こんにちは')).toMatchObject({ ok: false })
   })
 
-  it('ほかのアプリのファイルは読まない', () => {
+  it('他のアプリのファイルは読まない', () => {
     expect(parseBackup(JSON.stringify({ app: 'other', format: 1, data: {} }))).toMatchObject({ ok: false, error: expect.stringContaining('ではありません') })
   })
 

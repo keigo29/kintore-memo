@@ -9,8 +9,8 @@ import { Dialog } from './Dialog'
 
 /*
   トレーニング中に種目を選ぶ
-  ・筋群で絞りこみ＋検索（種目の画面と同じ探し方）
-  ・すでに入れた種目には「追加ずみ」の札（同じ種目を2回入れてもよい）
+  ・筋群で絞り込み＋検索（種目の画面と同じ探し方）
+  ・すでに入れた種目には「追加済み」の札（同じ種目を2回入れてもよい）
 */
 type Props = {
   addedIds: string[]
@@ -48,12 +48,12 @@ export function ExercisePickerDialog({ addedIds, onPick, onClose }: Props) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="種目をさがす"
-          aria-label="種目をさがす"
+          placeholder="種目を探す"
+          aria-label="種目を探す"
         />
       </label>
 
-      <div className="choice-grid" role="group" aria-label="筋群で絞りこむ">
+      <div className="choice-grid" role="group" aria-label="筋群で絞り込む">
         {MUSCLE_GROUPS.map(({ id, name }) => (
           <button
             key={id}
@@ -79,7 +79,7 @@ export function ExercisePickerDialog({ addedIds, onPick, onClose }: Props) {
               <button type="button" className="list-row list-row-btn" onClick={() => onPick(e.id)}>
                 <span className="dot" aria-hidden />
                 <span className="list-name">{e.name}</span>
-                {addedIds.includes(e.id) && <span className="tag tag-ok">追加ずみ</span>}
+                {addedIds.includes(e.id) && <span className="tag tag-ok">追加済み</span>}
               </button>
             </li>
           ))}

@@ -13,7 +13,7 @@ import { Switch } from './Switch'
 */
 type Props = {
   exercise?: Exercise
-  /** 追加のとき、最初に選んでおく筋群（絞りこみ中の筋群など） */
+  /** 追加のとき、最初に選んでおく筋群（絞り込み中の筋群など） */
   defaultGroup?: MuscleGroup
   onClose: () => void
   onDone: (message: string) => void

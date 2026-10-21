@@ -25,7 +25,7 @@ export function SummaryScreen({ sessionId, onClose, onShare }: Props) {
     <section className="screen review">
       <header className="summary-head">
         <span className="summary-date num">{formatDate(session.startedAt)}</span>
-        <h1 className="summary-title">おつかれさまでした</h1>
+        <h1 className="summary-title">お疲れさまでした</h1>
         <GroupChips summary={summary} />
       </header>
 

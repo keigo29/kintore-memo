@@ -24,7 +24,7 @@ import { TemplateEditScreen } from './screens/TemplateEditScreen'
 import { WorkoutScreen } from './screens/WorkoutScreen'
 
 /*
-  いま出している画面
+  今出している画面
   ・tabs：下のタブの4画面
   ・workout：トレーニング中 → review：振り返り → summary：トレーニング終了 → share：共有画像
   ・履歴の詳細は historyDetail で持つ（共有画像から戻ったときも、同じ詳細に戻る）
@@ -51,7 +51,7 @@ export default function App() {
   // トレーニング中のもの（なければ null）。中身が変わると自動で更新される
   const active = useLiveQuery(async () => (await getActiveSession()) ?? null, [])
 
-  // テーマ：設定が変わったら（読み込みで変わったときも）すぐ入れかえる
+  // テーマ：設定が変わったら（読み込みで変わったときも）すぐ入れ替える
   const theme = useLiveQuery(async () => (await getSettings()).theme, [])
   useEffect(() => {
     if (theme) applyTheme(theme)
@@ -141,7 +141,7 @@ export default function App() {
     )
   }
 
-  // 過去のトレーニングと同じ種目ではじめる
+  // 過去のトレーニングと同じ種目で始める
   const startCopy = async (sessionId: string) => {
     if (active) {
       toast.show('トレーニングの途中です。先に終えてください')
@@ -152,7 +152,7 @@ export default function App() {
     setView({ kind: 'workout' })
   }
 
-  // メニューからはじめる
+  // メニューから始める
   const startTemplate = async (templateId: string) => {
     if (active) {
       toast.show('トレーニングの途中です。先に終えてください')

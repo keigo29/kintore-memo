@@ -8,7 +8,7 @@ import type { Exercise } from './types'
     （削除すると、その種目を使った過去の記録の名前が分からなくなるため）
 */
 
-/** 検索や重なりチェック用に、文字をそろえる：全角英数→半角、ひらがな→カタカナ、大文字→小文字、空白を消す */
+/** 検索や重なりチェック用に、文字を揃える：全角英数→半角、ひらがな→カタカナ、大文字→小文字、空白を消す */
 export function normalize(text: string): string {
   return text
     .normalize('NFKC')

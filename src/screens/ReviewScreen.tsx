@@ -43,7 +43,7 @@ export function ReviewScreen({ sessionId, onBack, onSaved, onDiscarded }: Props)
   return (
     <section className="screen review">
       <header className="screen-head record-head">
-        <button type="button" className="icon-btn" aria-label="トレーニングにもどる" onClick={onBack}>
+        <button type="button" className="icon-btn" aria-label="トレーニングに戻る" onClick={onBack}>
           <ChevronLeft strokeWidth={2} />
         </button>
         <h1 className="screen-title review-title">振り返り</h1>
@@ -143,7 +143,7 @@ export function ReviewScreen({ sessionId, onBack, onSaved, onDiscarded }: Props)
             </>
           }
         >
-          <p className="field-help">今日のトレーニングの記録（{summary.totals.sets}セット）がすべて消えます。</p>
+          <p className="field-help">今日のトレーニングの記録（{summary.totals.sets}セット）が全て消えます。</p>
         </Dialog>
       )}
     </section>

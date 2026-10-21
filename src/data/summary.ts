@@ -8,9 +8,9 @@ import { finishSession } from './workout'
 /*
   1回のトレーニングのまとめ（振り返り画面・終了画面・あとで履歴でも使う）
   ・同じ種目を2回入れていたら、1つにまとめる
-  ・前回：この回より前に終えたトレーニングのうち、同じ種目をやったいちばん新しい回
-  ・自己ベスト：この回より前の「すべての」記録と比べて上回ったもの
-      - はじめてやった種目は、比べる相手がないので「更新」には数えない
+  ・前回：この回より前に終えたトレーニングのうち、同じ種目をやった一番新しい回
+  ・自己ベスト：この回より前の「全ての」記録と比べて上回ったもの
+      - 初めてやった種目は、比べる相手がないので「更新」には数えない
 */
 
 export type ExerciseResult = {
@@ -24,7 +24,7 @@ export type ExerciseResult = {
   change: Change | null
   /** この回で更新した自己ベストの種類 */
   records: RecordType[]
-  /** はじめてやった種目か */
+  /** 初めてやった種目か */
   isFirst: boolean
 }
 
@@ -169,7 +169,7 @@ export async function finishWithReview(sessionId: string, effort: number | null,
 }
 
 /**
- * 自己ベストをすべて計算し直す（過去の記録を直した・消したとき）
+ * 自己ベストを全て計算し直す（過去の記録を直した・消したとき）
  * ・ある回を直すと、それより後の回の「更新したか」も変わるので、全部を古い順にやり直す
  */
 export async function rebuildAllRecords(): Promise<void> {

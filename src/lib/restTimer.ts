@@ -40,7 +40,7 @@ function load(): RestState {
     const raw = localStorage.getItem(KEY)
     if (!raw) return IDLE
     const s = JSON.parse(raw) as RestState
-    // 閉じている間に時間が来ていたら「おわり」にする（音は鳴らさない）
+    // 閉じている間に時間が来ていたら「終わり」にする（音は鳴らさない）
     if (s.status === 'running' && s.endsAt !== null && s.endsAt <= Date.now()) return { ...s, status: 'done' }
     return s
   } catch {

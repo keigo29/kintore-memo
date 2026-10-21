@@ -1,4 +1,4 @@
-// 表示用の文字の形をそろえる
+// 表示用の文字の形を揃える
 
 /** 重量：60 → "60"、62.5 → "62.5"、null → "—" */
 export function formatKg(kg: number | null): string {
@@ -6,7 +6,7 @@ export function formatKg(kg: number | null): string {
   return String(Math.round(kg * 100) / 100)
 }
 
-/** かかった時間：65秒 → "1:05"、1時間2分3秒 → "1:02:03" */
+/** 掛かった時間：65秒 → "1:05"、1時間2分3秒 → "1:02:03" */
 export function formatDuration(ms: number): string {
   const total = Math.max(0, Math.floor(ms / 1000))
   const h = Math.floor(total / 3600)

@@ -12,7 +12,7 @@ import { formatDate, formatDuration } from '../lib/format'
 /*
   履歴
   ・上：今週・今月・これまでの回数
-  ・まんなか：月のカレンダー。やった日に印と筋群の色の点。日を押すと、その日だけを一覧に出す
+  ・真ん中：月のカレンダー。やった日に印と筋群の色の点。日を押すと、その日だけを一覧に出す
   ・下：日付ごとの一覧（新しい順）。押すと詳細へ
 */
 type Props = {
@@ -160,7 +160,7 @@ export function HistoryScreen({ onOpen }: Props) {
       {pickedDay && (
         <button type="button" className="hm-chip history-filter" aria-checked="true" onClick={() => setPickedDay(null)}>
           <span className="num">{formatDate(new Date(pickedDay.replace(/-/g, '/')).getTime())}</span> の記録
-          <X strokeWidth={2} aria-label="絞りこみをやめる" />
+          <X strokeWidth={2} aria-label="絞り込みをやめる" />
         </button>
       )}
 

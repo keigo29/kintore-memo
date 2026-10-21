@@ -26,8 +26,8 @@ import { restTimer } from '../lib/restTimer'
 /*
   1つの種目の記録画面
   ・上：前回の記録（これを見ながら入れる）
-  ・まんなか：セットの一覧。押すとそのセットを直せる
-  ・下：いま入力中のセット（大きな±）と「セット完了」
+  ・真ん中：セットの一覧。押すとそのセットを直せる
+  ・下：今入力中のセット（大きな±）と「セット完了」
   ・入力はすぐ保存（メモだけは、手を止めたときと欄を離れたときに保存）
   ・「セット完了」のあとは、次のセットを勝手に作らない。
     ボタンが「種目を終える」と「次のセット」に変わり、自分で選ぶ
@@ -68,7 +68,7 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
       restSeconds: (settings ?? DEFAULT_SETTINGS).restSeconds,
       // 古いデータには項目がないので、ないときは自動スタートにする
       restAuto: settings?.restAuto ?? true,
-      // このトレーニングに入っている種目（種目を選ぶときに「追加ずみ」を出すため）
+      // このトレーニングに入っている種目（種目を選ぶときに「追加済み」を出すため）
       addedIds: inSession.map((i) => i.exerciseId),
     }
   }, [workoutExerciseId])
@@ -77,7 +77,7 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
   const { we, exercise, sets, previous, step, restSeconds, restAuto, addedIds } = data
   const bodyweight = exercise.isBodyweight
 
-  // いま入力中のセット：選んだもの → まだ完了していない最初のセット → 最後のセット
+  // 今入力中のセット：選んだもの → まだ完了していない最初のセット → 最後のセット
   const active: WorkoutSet | undefined =
     sets.find((s) => s.id === activeId) ?? sets.find((s) => s.completedAt === null) ?? sets[sets.length - 1]
 
@@ -138,7 +138,7 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
   return (
     <section className="screen record">
       <header className="screen-head record-head">
-        <button type="button" className="icon-btn" aria-label="種目の一覧へもどる" onClick={onBack}>
+        <button type="button" className="icon-btn" aria-label="種目の一覧へ戻る" onClick={onBack}>
           <ChevronLeft strokeWidth={2} />
         </button>
         <div className="record-title" style={groupColor(exercise.muscleGroup)}>
@@ -194,7 +194,7 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
             ))}
           </ul>
         ) : (
-          <p className="field-help">前回の記録はありません。今日がはじめての記録です</p>
+          <p className="field-help">前回の記録はありません。今日が初めての記録です</p>
         )}
       </div>
 
@@ -237,7 +237,7 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
         </li>
       </ol>
 
-      {/* いま入力中のセット */}
+      {/* 今入力中のセット */}
       {active && (
         <div className="card editor">
           <div className="row-between">
@@ -312,7 +312,7 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
           </div>
 
           {showNote || active.note ? (
-            // key をセットごとに変えて、セットを切りかえたら入力欄も作り直す
+            // key をセットごとに変えて、セットを切り替えたら入力欄も作り直す
             <NoteInput key={active.id} value={active.note} onSave={(note) => updateSet(active.id, { note })} />
           ) : (
             <button type="button" className="link-btn" onClick={() => setShowNote(true)}>

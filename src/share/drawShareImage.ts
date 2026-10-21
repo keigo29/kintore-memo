@@ -3,7 +3,7 @@ import type { ShareContent } from './shareLayout'
 
 /*
   共有画像を Canvas に描いて、PNG にする
-  ・描く前に、使う文字のフォントを読みこみ終わるまで待つ（待たないと別の字形で描かれる）
+  ・描く前に、使う文字のフォントを読み込み終わるまで待つ（待たないと別の字形で描かれる）
   ・入りきらないときは scale を 1 → 0.62 まで少しずつ下げて、全部が収まる大きさを探す
   ・1行に入りきらない文字は、小さくして、それでも入らなければ「…」で切る
 */
@@ -26,7 +26,7 @@ const TROPHY = [
 
 const font = (weight: number, size: number, family: string) => `${weight} ${Math.round(size)}px ${family}`
 
-/** 使う文字のフォントを読みこむ（日本語フォントは使う文字の分だけ読みこまれるので、文字を渡す） */
+/** 使う文字のフォントを読み込む（日本語フォントは使う文字の分だけ読み込まれるので、文字を渡す） */
 async function loadFonts(content: ShareContent) {
   const jpText = [
     '筋トレメモ',
@@ -46,7 +46,7 @@ async function loadFonts(content: ShareContent) {
       document.fonts.load(font(700, 40, FONT_MONO), content.message ?? 'A'),
     ])
   } catch {
-    // 読みこめなくても、端末の文字で描く
+    // 読み込めなくても、端末の文字で描く
   }
 }
 
@@ -286,7 +286,7 @@ function layout(ctx: CanvasRenderingContext2D, c: ShareContent, s: number, dry: 
       if (c.growth.length > rows.length) {
         ctx.fillStyle = C.sub
         ctx.font = font(500, 28 * s, FONT_JP)
-        ctx.fillText(`ほか ${c.growth.length - rows.length} 種目`, PAD + 40 * s, y + h - 30 * s)
+        ctx.fillText(`他 ${c.growth.length - rows.length} 種目`, PAD + 40 * s, y + h - 30 * s)
       }
     }
     y += h

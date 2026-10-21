@@ -66,7 +66,7 @@ export function TemplateEditScreen({ templateId, initial, onClose }: Props) {
   return (
     <section className="screen review">
       <header className="screen-head record-head">
-        <button type="button" className="icon-btn" aria-label="保存せずにもどる" onClick={() => onClose()}>
+        <button type="button" className="icon-btn" aria-label="保存せずに戻る" onClick={() => onClose()}>
           <ChevronLeft strokeWidth={2} />
         </button>
         <h1 className="screen-title review-title">{templateId ? 'メニューを編集' : 'メニューを作る'}</h1>
@@ -122,17 +122,17 @@ export function TemplateEditScreen({ templateId, initial, onClose }: Props) {
                     <span className="list-name">
                       <span className="dot" aria-hidden /> {e?.name ?? '（消えた種目）'}
                     </span>
-                    {e?.archived && <span className="list-sub">隠した種目（はじめるときは飛ばします）</span>}
+                    {e?.archived && <span className="list-sub">隠した種目（始めるときは飛ばします）</span>}
                   </span>
                   <span className="template-sets">
-                    <button type="button" className="rest-btn" aria-label="セットをへらす" onClick={() => setSets(i, (it.targetSets ?? 1) - 1)}>
+                    <button type="button" className="rest-btn" aria-label="セットを減らす" onClick={() => setSets(i, (it.targetSets ?? 1) - 1)}>
                       <Minus strokeWidth={2.4} />
                     </button>
                     <span className="num template-sets-n">
                       {it.targetSets ?? 1}
                       <small>セット</small>
                     </span>
-                    <button type="button" className="rest-btn" aria-label="セットをふやす" onClick={() => setSets(i, (it.targetSets ?? 1) + 1)}>
+                    <button type="button" className="rest-btn" aria-label="セットを増やす" onClick={() => setSets(i, (it.targetSets ?? 1) + 1)}>
                       <Plus strokeWidth={2.4} />
                     </button>
                   </span>

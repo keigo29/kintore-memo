@@ -20,7 +20,7 @@ import { formatDate, formatKg } from '../lib/format'
   3. 週ごとの回数（直近12週）
   4. 筋群ごとのセット数
   5. 種目の推移：種目と項目を選ぶ → 折れ線（点を押すとその日の値）
-  6. その種目の自己ベスト：いまの最高と、更新してきた記録
+  6. その種目の自己ベスト：今の最高と、更新してきた記録
   記録がないところは、作った数字を出さず「記録すると出ます」とだけ出す
 */
 
@@ -261,7 +261,7 @@ function RecordList({ records, onOpenSession }: { records: { id: string; type: R
       </div>
     )
   }
-  // いまの最高（種類ごと）
+  // 今の最高（種類ごと）
   const best = (['maxWeight', 'e1rm', 'maxVolume'] as RecordType[]).flatMap((t) => {
     const list = records.filter((r) => r.type === t)
     if (list.length === 0) return []
@@ -300,7 +300,7 @@ function RecordList({ records, onOpenSession }: { records: { id: string; type: R
           </li>
         ))}
       </ul>
-      {records.length > 8 && <p className="field-help an-more">ほか {records.length - 8} 件</p>}
+      {records.length > 8 && <p className="field-help an-more">他 {records.length - 8} 件</p>}
     </div>
   )
 }

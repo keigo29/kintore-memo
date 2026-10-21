@@ -45,7 +45,7 @@ export function isIOS(): boolean {
 
 /**
  * 写真（カメラロール）に保存する：iPhone では共有シートを開く
- * ・題名などを付けず画像だけ渡すと、シートのいちばん上に「画像を保存」が出る
+ * ・題名などを付けず画像だけ渡すと、シートの一番上に「画像を保存」が出る
  */
 export async function saveToPhotos(blob: Blob, fileName: string): Promise<ShareResult> {
   const file = new File([blob], fileName, { type: 'image/png' })

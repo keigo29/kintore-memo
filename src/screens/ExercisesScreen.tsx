@@ -24,12 +24,12 @@ export function ExercisesScreen({ onToast }: Props) {
   const [form, setForm] = useState<FormState>({ mode: 'closed' })
   const [showHidden, setShowHidden] = useState(false)
 
-  // 全種目を読む。中身が変わると自動で画面も変わる（useLiveQuery）。読みこみ中は undefined
+  // 全種目を読む。中身が変わると自動で画面も変わる（useLiveQuery）。読み込み中は undefined
   const all = useLiveQuery(() => db.exercises.orderBy('name').toArray(), [])
 
   const groupName = (id: MuscleGroup) => MUSCLE_GROUPS.find((g) => g.id === id)?.name ?? ''
 
-  // 絞りこみ：筋群 → 検索の文字（ひらがなでもカタカナの種目が見つかる）
+  // 絞り込み：筋群 → 検索の文字（ひらがなでもカタカナの種目が見つかる）
   const key = normalize(query)
   const matches = (e: Exercise) =>
     (!group || e.muscleGroup === group) && (!key || normalize(e.name).includes(key))
@@ -37,7 +37,7 @@ export function ExercisesScreen({ onToast }: Props) {
   const visible = all?.filter((e) => !e.archived && matches(e)).sort(byCreated)
   const hidden = all?.filter((e) => e.archived).sort(byCreated) ?? []
 
-  const title = query ? `「${query}」の検索結果` : group ? groupName(group) : 'すべての種目'
+  const title = query ? `「${query}」の検索結果` : group ? groupName(group) : '全ての種目'
 
   return (
     <section className="screen">
@@ -48,7 +48,7 @@ export function ExercisesScreen({ onToast }: Props) {
         </button>
       </header>
 
-      <div className="mg-grid" role="group" aria-label="筋群で絞りこむ">
+      <div className="mg-grid" role="group" aria-label="筋群で絞り込む">
         {MUSCLE_GROUPS.map(({ id, name }) => (
           <button
             key={id}
@@ -73,8 +73,8 @@ export function ExercisesScreen({ onToast }: Props) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="種目をさがす"
-          aria-label="種目をさがす"
+          placeholder="種目を探す"
+          aria-label="種目を探す"
         />
       </label>
 

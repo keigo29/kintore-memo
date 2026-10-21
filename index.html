@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>筋トレメモ</title>
     <script>
-      // 画面を出す前にテーマを入れる（ダークのとき、一瞬白く光らないように）。くわしくは src/lib/theme.ts
+      // 画面を出す前にテーマを入れる（ダークのとき、一瞬白く光らないように）。詳しくは src/lib/theme.ts
       try {
         var t = localStorage.getItem('kintore-memo:theme')
         if (t === 'system') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'

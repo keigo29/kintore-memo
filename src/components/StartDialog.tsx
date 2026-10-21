@@ -8,9 +8,9 @@ import { Dialog } from './Dialog'
 
 /*
   始め方を選ぶ
-  ・何も決めずにはじめる
-  ・前回と同じ種目ではじめる（前回がなければ押せない）
-  ・メニューからはじめる（作ったメニューを並べる）
+  ・何も決めずに始める
+  ・前回と同じ種目で始める（前回がなければ押せない）
+  ・メニューから始める（作ったメニューを並べる）
 */
 type Props = {
   onClose: () => void
@@ -35,11 +35,11 @@ export function StartDialog({ onClose, onStarted }: Props) {
   }
 
   const namesText = (names: string[]) =>
-    names.length <= 3 ? names.join('・') : `${names.slice(0, 3).join('・')} ほか${names.length - 3}種目`
+    names.length <= 3 ? names.join('・') : `${names.slice(0, 3).join('・')} 他${names.length - 3}種目`
 
   return (
     <Dialog
-      title="トレーニングをはじめる"
+      title="トレーニングを始める"
       onClose={onClose}
       footer={
         <>
@@ -55,8 +55,8 @@ export function StartDialog({ onClose, onStarted }: Props) {
           <Play strokeWidth={2} aria-hidden />
         </span>
         <span className="option-text">
-          <span className="option-title">何も決めずにはじめる</span>
-          <span className="option-sub">種目はあとから足せます</span>
+          <span className="option-title">何も決めずに始める</span>
+          <span className="option-sub">種目は後から足せます</span>
         </span>
       </button>
 
@@ -65,7 +65,7 @@ export function StartDialog({ onClose, onStarted }: Props) {
           <Copy strokeWidth={2} aria-hidden />
         </span>
         <span className="option-text">
-          <span className="option-title">前回と同じ種目ではじめる</span>
+          <span className="option-title">前回と同じ種目で始める</span>
           <span className="option-sub">
             {last ? (
               <>
@@ -79,7 +79,7 @@ export function StartDialog({ onClose, onStarted }: Props) {
       </button>
       {templates && templates.length > 0 && (
         <>
-          <span className="field-label start-menu-label">メニューからはじめる</span>
+          <span className="field-label start-menu-label">メニューから始める</span>
           {templates.map(({ template, names, sets }) => (
             <button
               key={template.id}

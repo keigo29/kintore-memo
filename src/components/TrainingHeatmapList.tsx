@@ -6,7 +6,7 @@ import { HEATMAP_WEEKS, HeatmapLegend, TrainingHeatmap, summarize } from './Trai
 
 /*
   鍛えた日の記録をまとめて並べる（ホーム用）
-  ・いちばん上に「すべて」、その下に筋群ごとの表を縦に並べる（切りかえなしで一覧できる）
+  ・一番上に「全て」、その下に筋群ごとの表を縦に並べる（切り替えなしで一覧できる）
   ・それぞれの見出しに、直近17週でやった日数と合計セット数
 */
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
 
 export function TrainingHeatmapList({ daily, today }: Props) {
   const rows: { id: MuscleGroup | null; name: string }[] = [
-    { id: null, name: 'すべて' },
+    { id: null, name: '全て' },
     ...MUSCLE_GROUPS.map((g) => ({ id: g.id, name: g.name })),
   ]
 

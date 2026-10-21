@@ -14,7 +14,7 @@ import { formatDate, formatKg } from '../lib/format'
 /*
   過去のトレーニングの詳細
   ・見る：数字のまとめ、種目ごとのセット（重量 × 回数）、きつさとメモ
-  ・できること：共有画像を作る／同じ種目ではじめる／編集／削除
+  ・できること：共有画像を作る／同じ種目で始める／編集／削除
   ・編集を終えたら、自己ベストを全部計算し直す（後の回の「更新」も変わるため）
 */
 type Props = {
@@ -60,7 +60,7 @@ export function HistoryDetailScreen({ sessionId, onBack, onShare, onStartCopy, o
   return (
     <section className="screen review">
       <header className="screen-head record-head">
-        <button type="button" className="icon-btn" aria-label="履歴にもどる" onClick={onBack} disabled={editing}>
+        <button type="button" className="icon-btn" aria-label="履歴に戻る" onClick={onBack} disabled={editing}>
           <ChevronLeft strokeWidth={2} />
         </button>
         <h1 className="screen-title review-title num">{formatDate(session.startedAt)}</h1>
@@ -118,7 +118,7 @@ export function HistoryDetailScreen({ sessionId, onBack, onShare, onStartCopy, o
             <div className="action-pair detail-pair">
               <button type="button" className="btn btn-lg" onClick={() => onStartCopy(sessionId)}>
                 <Copy strokeWidth={2} aria-hidden />
-                同じ種目ではじめる
+                同じ種目で始める
               </button>
               <button type="button" className="btn btn-lg" onClick={() => setEditing(true)}>
                 <Pencil strokeWidth={2} aria-hidden />
@@ -247,7 +247,7 @@ function EditView({
     <>
       <div className="card review-feel">
         <label className="field">
-          <span className="field-label">はじめた日時</span>
+          <span className="field-label">始めた日時</span>
           <input
             className="input"
             type="datetime-local"
@@ -363,7 +363,7 @@ function EditView({
             </>
           }
         >
-          <p className="field-help">この回の「{removing.exercise?.name}」のセットがすべて消えます。</p>
+          <p className="field-help">この回の「{removing.exercise?.name}」のセットが全て消えます。</p>
         </Dialog>
       )}
     </>

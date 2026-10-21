@@ -6,7 +6,7 @@ import { startSession } from './workout'
 /*
   トレーニングメニュー
   ・中身は「種目」と「何セットやるか」の並び
-  ・メニューからはじめると、そのセット数ぶんを前回の重量・回数で用意する
+  ・メニューから始めると、そのセット数ぶんを前回の重量・回数で用意する
 */
 
 export type TemplateItem = WorkoutTemplate['items'][number]
@@ -76,7 +76,7 @@ export async function itemsFromSession(sessionId: string): Promise<TemplateItem[
   return items
 }
 
-/** メニューからはじめる（隠した種目・消えた種目は飛ばす） */
+/** メニューから始める（隠した種目・消えた種目は飛ばす） */
 export async function startFromTemplate(id: string): Promise<string | null> {
   const t = await db.templates.get(id)
   if (!t) return null

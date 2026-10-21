@@ -18,7 +18,7 @@ import type {
     "data": { "exercises": [...], "templates": [...], "sessions": [...],
               "workoutExercises": [...], "sets": [...], "records": [...], "settings": [...] }
   }
-  ・読み込むときは、中身を1つずつ確かめてから入れる（こわれたファイルで全部消えるのを防ぐ）
+  ・読み込むときは、中身を1つずつ確かめてから入れる（壊れたファイルで全部消えるのを防ぐ）
   ・このファイルはデータベースを使わない（テストしやすいように）
 */
 
@@ -47,7 +47,7 @@ const numOrNull = (o: Obj, k: string) => o[k] === null || num(o, k)
 
 const GROUPS = new Set<string>(MUSCLE_GROUPS.map((g) => g.id))
 
-/** 表ごとの「最低限そろっていてほしい項目」 */
+/** 表ごとの「最低限揃っていてほしい項目」 */
 const CHECKS: Record<keyof BackupData, { label: string; ok: (o: Obj) => boolean }> = {
   exercises: { label: '種目', ok: (o) => str(o, 'name') && GROUPS.has(o.muscleGroup as string) },
   templates: { label: 'メニュー', ok: (o) => typeof o.name === 'string' && Array.isArray(o.items) },
@@ -91,7 +91,7 @@ export function parseBackup(text: string): ParseResult {
   const data = {} as Record<keyof BackupData, unknown[]>
   for (const table of TABLES) {
     const list = raw.data[table] ?? []
-    if (!Array.isArray(list)) return { ok: false, error: `「${CHECKS[table].label}」の形がちがいます` }
+    if (!Array.isArray(list)) return { ok: false, error: `「${CHECKS[table].label}」の形が違います` }
     const ids = new Set<string>()
     for (const [i, item] of list.entries()) {
       if (!isObj(item) || !str(item, 'id') || !CHECKS[table].ok(item)) {

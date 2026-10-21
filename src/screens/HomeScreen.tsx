@@ -16,7 +16,7 @@ import { formatDate, formatKg, formatShortDate } from '../lib/format'
 
 /*
   ホーム（使う順に並べる）
-  1. はじめる
+  1. 始める
   2. 今週と今月（先月と比べた伸び）
   3. 筋群ごとの前回（何日前か）
   4. メニュー
@@ -32,7 +32,7 @@ type Props = {
   onOpenSettings: () => void
   /** メニューを直す（null なら新しく作る） */
   onEditTemplate: (templateId: string | null) => void
-  /** メニューからはじめる */
+  /** メニューから始める */
   onStartTemplate: (templateId: string) => void
   /** 履歴を開く（sessionId があればその詳細） */
   onOpenHistory: (sessionId?: string) => void
@@ -68,16 +68,16 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings, onEditTem
         </button>
       </header>
 
-      {/* 1. はじめる */}
+      {/* 1. 始める */}
       <div className="card start-card">
         <p className="start-date num">{formatDate(today)}</p>
         <h1 className="start-title">今日のトレーニング</h1>
         <p className="start-sub">
-          {activeStartedAt ? 'トレーニングの途中です。続きから記録できます' : 'メニューや前回と同じ種目からはじめられます'}
+          {activeStartedAt ? 'トレーニングの途中です。続きから記録できます' : 'メニューや前回と同じ種目から始められます'}
         </p>
         <button type="button" className="btn btn-primary btn-lg btn-block" onClick={onStart}>
           <Play strokeWidth={2} aria-hidden />
-          {activeStartedAt ? '続ける' : 'はじめる'}
+          {activeStartedAt ? '続ける' : '始める'}
         </button>
       </div>
 
@@ -87,7 +87,7 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings, onEditTem
           <h2 className="first-title">最初の1回を記録しよう</h2>
           <ol className="first-steps">
             <li>
-              <span className="first-no num">1</span>「はじめる」を押して、種目を選ぶ
+              <span className="first-no num">1</span>「始める」を押して、種目を選ぶ
             </li>
             <li>
               <span className="first-no num">2</span>重量と回数を入れて「セット完了」
@@ -139,7 +139,7 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings, onEditTem
         </>
       )}
 
-      {/* 4. メニュー：押すと直す、▶ でそのメニューからはじめる */}
+      {/* 4. メニュー：押すと直す、▶ でそのメニューから始める */}
       <div>
         <div className="row-between">
           <h2 className="section-title">メニュー</h2>
@@ -152,7 +152,7 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings, onEditTem
           <div className="card">
             <EmptyState
               icon={ClipboardList}
-              text="よくやる種目をメニューにすると、すぐにはじめられます"
+              text="よくやる種目をメニューにすると、すぐに始められます"
               action={
                 <button type="button" className="btn" onClick={() => onEditTemplate(null)}>
                   <Plus strokeWidth={2} aria-hidden />
@@ -187,7 +187,7 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings, onEditTem
                   <button
                     type="button"
                     className="rest-btn rest-btn-go template-go"
-                    aria-label={`${template.name}ではじめる`}
+                    aria-label={`${template.name}で始める`}
                     onClick={() => onStartTemplate(template.id)}
                   >
                     <Play strokeWidth={2.4} aria-hidden />
@@ -237,7 +237,7 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings, onEditTem
             <div className="row-between">
               <h2 className="section-title">直近の履歴</h2>
               <button type="button" className="link-btn section-link" onClick={() => onOpenHistory()}>
-                すべて見る
+                全て見る
                 <ChevronRight strokeWidth={2} aria-hidden />
               </button>
             </div>

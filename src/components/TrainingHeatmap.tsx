@@ -8,10 +8,10 @@ import { formatDate } from '../lib/format'
 
 /*
   鍛えた日の記録（GitHub の「草」のような表）を1つ描く
-  ・1マス＝1日。たては月〜日、よこは週（右がいちばん新しい週）
+  ・1マス＝1日。縦は月〜日、横は週（右が一番新しい週）
   ・濃さ＝その日に完了した本番セットの数（5段階）
   ・色は単色のグラデーション：group が null なら黒（ボタンの色）、筋群ならその筋群の色
-  ・ホームでは「すべて」と筋群ごとの表を縦に並べる（TrainingHeatmapList）
+  ・ホームでは「全て」と筋群ごとの表を縦に並べる（TrainingHeatmapList）
 */
 export const HEATMAP_WEEKS = 17
 
@@ -50,7 +50,7 @@ type Props = {
   daily: DailySets
   /** 今日の 0:00 */
   today: number
-  /** null ＝ すべての筋群 */
+  /** null ＝ 全ての筋群 */
   group: MuscleGroup | null
 }
 
@@ -92,7 +92,7 @@ export function TrainingHeatmap({ daily, today, group }: Props) {
   const height = TOP + 7 * STEP - GAP
   const pickedCell = cells.find((c) => c.ms === picked)
 
-  // 押した日の内訳（「すべて」のとき）：胸 6・背中 4
+  // 押した日の内訳（「全て」のとき）：胸 6・背中 4
   const breakdown = (ms: number) => {
     const day = daily.get(dayKey(ms)) ?? {}
     return MUSCLE_GROUPS.filter((g) => day[g.id])
@@ -145,7 +145,7 @@ export function TrainingHeatmap({ daily, today, group }: Props) {
   )
 }
 
-/** 濃さの見本：少 □□□□□ 多（「すべて」の黒で見せる） */
+/** 濃さの見本：少 □□□□□ 多（「全て」の黒で見せる） */
 export function HeatmapLegend() {
   return (
     <span className="heatmap-legend" aria-hidden>

@@ -46,7 +46,7 @@ export function NumberStepper({ label, value, onChange, step, unit, decimal = fa
     <div className="stepper">
       <span className="field-label">{label}</span>
       <div className="stepper-row">
-        <button type="button" className="stepper-btn" aria-label={`${label}を${step}${unit}へらす`} onClick={() => bump(-1)}>
+        <button type="button" className="stepper-btn" aria-label={`${label}を${step}${unit}減らす`} onClick={() => bump(-1)}>
           <Minus strokeWidth={2.4} aria-hidden />
         </button>
         <label className="stepper-value">
@@ -71,7 +71,7 @@ export function NumberStepper({ label, value, onChange, step, unit, decimal = fa
           />
           <span className="stepper-unit">{unit}</span>
         </label>
-        <button type="button" className="stepper-btn" aria-label={`${label}を${step}${unit}ふやす`} onClick={() => bump(1)}>
+        <button type="button" className="stepper-btn" aria-label={`${label}を${step}${unit}増やす`} onClick={() => bump(1)}>
           <Plus strokeWidth={2.4} aria-hidden />
         </button>
       </div>

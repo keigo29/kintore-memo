@@ -26,7 +26,7 @@ export type RecentRecord = {
 export type HomeData = {
   total: number
   recent: SessionRow[]
-  /** 筋群ごとの、いちばん最近やった日の 0:00（やっていなければ入らない） */
+  /** 筋群ごとの、一番最近やった日の 0:00（やっていなければ入らない） */
   lastByGroup: Map<MuscleGroup, number>
   thisMonth: MonthStats
   lastMonth: MonthStats

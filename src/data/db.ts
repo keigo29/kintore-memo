@@ -37,7 +37,7 @@ db.version(1).stores({
   settings: 'id',
 })
 
-// 2版：自己ベストを「どの回で出したか」で探せるように索引を足す（いまのデータはそのまま）
+// 2版：自己ベストを「どの回で出したか」で探せるように索引を足す（今のデータはそのまま）
 db.version(2).stores({
   records: 'id, exerciseId, [exerciseId+type], achievedAt, sessionId',
 })
@@ -78,7 +78,7 @@ db.on('populate', (tx) => {
         isCustom: false,
         isBodyweight: e.bw ?? false,
         archived: false,
-        // 並びを入れた順にそろえるため、1ミリ秒ずつずらす
+        // 並びを入れた順に揃えるため、1ミリ秒ずつずらす
         createdAt: now + i,
       }),
     ),

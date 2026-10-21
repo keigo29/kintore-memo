@@ -66,7 +66,7 @@ export async function deleteSession(id: string): Promise<void> {
   await rebuildAllRecords()
 }
 
-/** 日時を変える（かかった時間はそのまま、終わりの時刻もいっしょにずらす） */
+/** 日時を変える（掛かった時間はそのまま、終わりの時刻もいっしょにずらす） */
 export async function moveSession(id: string, startedAt: number): Promise<void> {
   const s = await db.sessions.get(id)
   if (!s) return

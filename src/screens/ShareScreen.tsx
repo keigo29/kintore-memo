@@ -117,7 +117,7 @@ export function ShareScreen({ sessionId, onBack, onToast }: Props) {
   return (
     <section className="screen share">
       <header className="screen-head record-head">
-        <button type="button" className="icon-btn" aria-label="もどる" onClick={onBack}>
+        <button type="button" className="icon-btn" aria-label="戻る" onClick={onBack}>
           <ChevronLeft strokeWidth={2} />
         </button>
         <h1 className="screen-title review-title">共有画像</h1>

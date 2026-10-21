@@ -116,7 +116,7 @@ export type UserSettings = {
   restSeconds: number
   /** ±ボタンで重量を変える幅 */
   weightStepKg: number
-  /** セット完了で休憩タイマーを自動ではじめるか */
+  /** セット完了で休憩タイマーを自動で始めるか */
   restAuto: boolean
   /** 最後に書き出した日時（まだなら null） */
   lastExportAt: number | null

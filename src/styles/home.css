@@ -73,7 +73,7 @@
 }
 
 
-/* はじめて使うとき */
+/* 初めて使うとき */
 .first-card {
   display: flex;
   flex-direction: column;

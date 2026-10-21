@@ -12,7 +12,7 @@ export async function getActiveSession(): Promise<WorkoutSession | undefined> {
   return db.sessions.where('status').equals('active').first()
 }
 
-/** いちばん最近に終えたトレーニング */
+/** 一番最近に終えたトレーニング */
 export async function getLastDoneSession(): Promise<WorkoutSession | undefined> {
   const list = await db.sessions.orderBy('startedAt').reverse().toArray()
   return list.find((s) => s.status === 'done')
@@ -24,7 +24,7 @@ export type StartItem = { exerciseId: string; sets: number }
 /**
  * 新しいトレーニングを始める
  * ・copyFrom：その回と同じ種目を、同じセット数で用意する（前回と同じ・履歴から複製）
- * ・items / templateId：メニューからはじめるとき
+ * ・items / templateId：メニューから始めるとき
  */
 export async function startSession(copyFrom?: string, items?: StartItem[], templateId: string | null = null): Promise<string> {
   const id = crypto.randomUUID()
@@ -66,7 +66,7 @@ export async function getSets(workoutExerciseId: string): Promise<WorkoutSet[]> 
   return db.sets.where('workoutExerciseId').equals(workoutExerciseId).sortBy('order')
 }
 
-/** 前回の記録：この種目をやった、いちばん新しい「終えた」トレーニングの完了セット */
+/** 前回の記録：この種目をやった、一番新しい「終えた」トレーニングの完了セット */
 export type PreviousRecord = { startedAt: number; sets: WorkoutSet[] }
 
 export async function getPrevious(exerciseId: string, exceptSessionId: string): Promise<PreviousRecord | null> {
@@ -140,7 +140,7 @@ export async function completeSet(id: string): Promise<void> {
   await db.sets.update(id, { completedAt: Date.now() })
 }
 
-/** 完了を取り消す（まちがえて押したとき用） */
+/** 完了を取り消す（間違えて押したとき用） */
 export async function uncompleteSet(id: string): Promise<void> {
   await db.sets.update(id, { completedAt: null })
 }

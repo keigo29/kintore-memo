@@ -16,10 +16,10 @@ import { saveImage } from '../share/shareActions'
 /*
   設定
   ・見た目：テーマ（ライト／ダーク／端末に合わせる）
-  ・記録：重量の刻み・休憩の長さ・セット完了で休憩をはじめるか
-  ・バックアップ：JSON ファイルに書き出す／読み込む（置きかえ）
-  ・データ：保存のようす・すべて削除
-  ・このアプリについて：版・計算のしかた
+  ・記録：重量の刻み・休憩の長さ・セット完了で休憩を始めるか
+  ・バックアップ：JSON ファイルに書き出す／読み込む（置き換え）
+  ・データ：保存のようす・全て削除
+  ・このアプリについて：版・計算の仕方
   変えたらすぐ保存する（「保存」ボタンはない）
 */
 type Props = {
@@ -36,7 +36,7 @@ const STEPS = [1, 1.25, 2.5, 5]
 const REST_STEP = 15
 const REST_MIN = 15
 const REST_MAX = 600
-/** これより前に書き出したきりなら、書き出しをすすめる */
+/** これより前に書き出したきりなら、書き出しを勧める */
 const STALE_DAYS = 30
 
 export function SettingsScreen({ onBack, onToast }: Props) {
@@ -89,7 +89,7 @@ export function SettingsScreen({ onBack, onToast }: Props) {
   return (
     <section className="screen review settings">
       <header className="screen-head record-head">
-        <button type="button" className="icon-btn" aria-label="もどる" onClick={onBack}>
+        <button type="button" className="icon-btn" aria-label="戻る" onClick={onBack}>
           <ChevronLeft strokeWidth={2} />
         </button>
         <h1 className="screen-title review-title">設定</h1>
@@ -137,7 +137,7 @@ export function SettingsScreen({ onBack, onToast }: Props) {
               <button
                 type="button"
                 className="rest-btn num"
-                aria-label="15秒みじかく"
+                aria-label="15秒短く"
                 disabled={settings.restSeconds <= REST_MIN}
                 onClick={() => set({ restSeconds: Math.max(REST_MIN, settings.restSeconds - REST_STEP) })}
               >
@@ -147,7 +147,7 @@ export function SettingsScreen({ onBack, onToast }: Props) {
               <button
                 type="button"
                 className="rest-btn num"
-                aria-label="15秒ながく"
+                aria-label="15秒長く"
                 disabled={settings.restSeconds >= REST_MAX}
                 onClick={() => set({ restSeconds: Math.min(REST_MAX, settings.restSeconds + REST_STEP) })}
               >
@@ -157,10 +157,10 @@ export function SettingsScreen({ onBack, onToast }: Props) {
           </div>
           <div className="settings-row">
             <div>
-              <span className="settings-name">セット完了で休憩をはじめる</span>
-              <span className="field-help">オフにすると、休憩タイマーは自分で押してはじめます</span>
+              <span className="settings-name">セット完了で休憩を始める</span>
+              <span className="field-help">オフにすると、休憩タイマーは自分で押して始めます</span>
             </div>
-            <Switch checked={settings.restAuto} onChange={(v) => set({ restAuto: v })} label="セット完了で休憩をはじめる" />
+            <Switch checked={settings.restAuto} onChange={(v) => set({ restAuto: v })} label="セット完了で休憩を始める" />
           </div>
         </div>
       </div>
@@ -170,7 +170,7 @@ export function SettingsScreen({ onBack, onToast }: Props) {
         <h2 className="section-title">バックアップ</h2>
         <div className="card settings-backup">
           <p className="field-help">
-            記録はこの端末の中だけにあります。機種変更やブラウザのデータ削除にそなえて、ときどきファイルに書き出してください。
+            記録はこの端末の中だけにあります。機種変更やブラウザのデータ削除に備えて、時々ファイルに書き出してください。
           </p>
           <p className={stale ? 'settings-last is-stale' : 'settings-last'}>
             {settings.lastExportAt === null ? 'まだ書き出していません' : `最後に書き出した日：${formatDate(settings.lastExportAt)}`}
@@ -218,7 +218,7 @@ export function SettingsScreen({ onBack, onToast }: Props) {
           )}
           <div className="settings-row">
             <button type="button" className="link-btn link-danger" onClick={() => setDeleting(true)}>
-              すべてのデータを削除
+              全てのデータを削除
             </button>
           </div>
         </div>
@@ -260,13 +260,13 @@ export function SettingsScreen({ onBack, onToast }: Props) {
                     setImporting(null)
                     onToast('バックアップを読み込みました')
                   } catch {
-                    onToast('読み込めませんでした。いまのデータはそのままです')
+                    onToast('読み込めませんでした。今のデータはそのままです')
                   } finally {
                     setBusy(false)
                   }
                 }}
               >
-                {busy ? '読み込み中…' : '置きかえる'}
+                {busy ? '読み込み中…' : '置き換える'}
               </button>
             </>
           }
@@ -277,7 +277,7 @@ export function SettingsScreen({ onBack, onToast }: Props) {
 
       {deleting && (
         <Dialog
-          title="すべてのデータを削除しますか？"
+          title="全てのデータを削除しますか？"
           onClose={() => setDeleting(false)}
           footer={
             <>
@@ -292,7 +292,7 @@ export function SettingsScreen({ onBack, onToast }: Props) {
             </>
           }
         >
-          <p className="field-help">記録・メニュー・自分で足した種目・設定が消えて、はじめて開いたときの状態に戻ります。元には戻せません。</p>
+          <p className="field-help">記録・メニュー・自分で足した種目・設定が消えて、初めて開いたときの状態に戻ります。元には戻せません。</p>
         </Dialog>
       )}
     </section>
@@ -304,7 +304,7 @@ function ImportSummary({ file }: { file: BackupFile }) {
   return (
     <div className="import-summary">
       <p className="field-help">
-        {file.exportedAt ? `${formatDate(file.exportedAt)} に書き出したファイル` : '書き出した日がわからないファイル'}
+        {file.exportedAt ? `${formatDate(file.exportedAt)} に書き出したファイル` : '書き出した日が分からないファイル'}
       </p>
       <ul className="import-counts num">
         <li>
@@ -324,7 +324,7 @@ function ImportSummary({ file }: { file: BackupFile }) {
           {c.templates}
         </li>
       </ul>
-      <p className="field-error">いまのデータはすべて消えて、このファイルの中身に置きかわります。</p>
+      <p className="field-error">今のデータは全て消えて、このファイルの中身に置き換わります。</p>
     </div>
   )
 }

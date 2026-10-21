@@ -4,8 +4,8 @@ import type { UserSettings } from './types'
 /*
   設定
   ・保存は settings テーブルの 'me' の1行だけ
-  ・あとから足した項目（restAuto など）は、古いデータには入っていない
-    → いつも「最初の設定」に保存ずみの値を重ねて読む（足りない項目は最初の値になる）
+  ・後から足した項目（restAuto など）は、古いデータには入っていない
+    → いつも「最初の設定」に保存済みの値を重ねて読む（足りない項目は最初の値になる）
 */
 
 export async function getSettings(): Promise<UserSettings> {

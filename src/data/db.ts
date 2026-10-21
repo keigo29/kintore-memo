@@ -47,6 +47,8 @@ export const DEFAULT_SETTINGS: UserSettings = {
   theme: 'light',
   restSeconds: 90,
   weightStepKg: 2.5,
+  restAuto: true,
+  lastExportAt: null,
   shareDefaults: {
     muscleGroups: true,
     exerciseCount: true,

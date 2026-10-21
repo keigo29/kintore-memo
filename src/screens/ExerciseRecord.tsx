@@ -66,13 +66,15 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
       previous,
       step: (settings ?? DEFAULT_SETTINGS).weightStepKg,
       restSeconds: (settings ?? DEFAULT_SETTINGS).restSeconds,
+      // 古いデータには項目がないので、ないときは自動スタートにする
+      restAuto: settings?.restAuto ?? true,
       // このトレーニングに入っている種目（種目を選ぶときに「追加ずみ」を出すため）
       addedIds: inSession.map((i) => i.exerciseId),
     }
   }, [workoutExerciseId])
 
   if (!data || !data.exercise) return null
-  const { we, exercise, sets, previous, step, restSeconds, addedIds } = data
+  const { we, exercise, sets, previous, step, restSeconds, restAuto, addedIds } = data
   const bodyweight = exercise.isBodyweight
 
   // いま入力中のセット：選んだもの → まだ完了していない最初のセット → 最後のセット
@@ -112,8 +114,8 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
     const label = labels.get(active.id)
     await completeSet(active.id)
     navigator.vibrate?.(15)
-    // 休憩タイマーを自動でスタート（ウォームアップのあとも休憩する）
-    restTimer.start(restSeconds)
+    // 休憩タイマーを自動でスタート（ウォームアップのあとも休憩する）。設定で切れる
+    if (restAuto) restTimer.start(restSeconds)
     // 完了したセットを選んだままにする（次のセットはまだ作らない）
     setActiveId(active.id)
     flash(label === 'W' ? 'ウォームアップを記録しました' : `${label}セット目を記録しました`)

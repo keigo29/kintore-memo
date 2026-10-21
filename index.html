@@ -10,6 +10,17 @@
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>筋トレメモ</title>
+    <script>
+      // 画面を出す前にテーマを入れる（ダークのとき、一瞬白く光らないように）。くわしくは src/lib/theme.ts
+      try {
+        var t = localStorage.getItem('kintore-memo:theme')
+        if (t === 'system') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        if (t === 'dark') {
+          document.documentElement.dataset.theme = 'dark'
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0b0b0c')
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

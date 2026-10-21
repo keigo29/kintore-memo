@@ -7,8 +7,16 @@ import { VitePWA } from 'vite-plugin-pwa'
 // ふだんの開発（npm run dev）は '/' のまま。
 const base = process.env.BASE_PATH ?? '/'
 
+// 設定画面の「このアプリについて」に出す版と、作った日
+const APP_VERSION = process.env.npm_package_version ?? '0.0.0'
+const BUILT_AT = new Date().toISOString().slice(0, 10)
+
 export default defineConfig({
   base,
+  define: {
+    __APP_VERSION__: JSON.stringify(APP_VERSION),
+    __BUILT_AT__: JSON.stringify(BUILT_AT),
+  },
   plugins: [
     react(),
     // PWA：ホーム画面に入れられて、電波がなくても開ける

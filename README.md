@@ -15,7 +15,7 @@ npm run dev        # http://localhost:5173 で開く
 ```bash
 npm run build      # 型チェック＋本番用に書き出し（dist/）
 npm run preview    # 書き出したものを確認
-npm test           # 計算のテスト
+npm test           # 計算とバックアップファイルのテスト
 ```
 
 ## GitHub Pages で公開する
@@ -75,9 +75,14 @@ src/
     history.ts           履歴の一覧・削除・日時の変更
     templates.ts         トレーニングメニュー（保存・複製・過去の記録から作る・メニューからはじめる）
     home.ts              ホームの数字（今月と先月・筋群ごとの前回・最近の自己ベスト・直近の履歴）
+    settings.ts          設定の読み書き（古いデータに足りない項目は最初の値で補う）
+    backupFormat.ts      バックアップファイル（JSON）の形と、読み込む前の確認
+    backupFormat.test.ts backupFormat.ts のテスト（npm test）
+    backup.ts            書き出し・読み込み（置きかえ）・すべて削除
     analysis.ts          分析の数字（期間まとめ・週ごとの回数・筋群別セット・種目の推移・自己ベスト）
   lib/
     format.ts            重量・時間・日付の表示の形
+    theme.ts             テーマ（ライト／ダーク／端末に合わせる）の切りかえ
     date.ts              日付の計算（その日・その週の始まり）
     useNow.ts            1秒ごとの時刻（経過時間）
     restTimer.ts         休憩タイマーのしくみ（終わる時刻で数える・端末に保存・音とバイブ）
@@ -99,6 +104,7 @@ src/
     HistoryDetailScreen.tsx  過去の記録の詳細・編集・複製・削除・メニューにする
     TemplateEditScreen.tsx   メニューを作る・直す（種目・セット数・並べかえ）
     AnalysisScreen.tsx   分析（期間まとめ・週ごとの回数・筋群別・種目の推移・自己ベスト）
+    SettingsScreen.tsx   設定（テーマ・重量の刻み・休憩・バックアップ・データ・このアプリについて）
   styles/
     tokens.css           デザインのトークン（色・角丸・影）。色はここだけに書く
     base.css             全体の土台
@@ -117,3 +123,8 @@ public/                  アプリのアイコン
 ## データの中身を見る
 
 Chrome の開発者ツール → Application → IndexedDB → kintore-memo で、保存された中身を確認できます。
+
+## データのバックアップ
+
+記録は端末の中（IndexedDB）だけにあります。設定 →「バックアップ」の「書き出す」で、すべてのデータを JSON ファイルに保存できます。
+機種変更のときは、新しい端末で「読み込む」を選ぶと、いまのデータがファイルの中身に置きかわります（足し合わせはしません）。

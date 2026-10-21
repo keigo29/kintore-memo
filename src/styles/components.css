@@ -1991,3 +1991,145 @@
   margin: 0 6px;
   color: var(--line);
 }
+
+/* ---------- 切り替え（分析の期間・設定のテーマなど） ---------- */
+.seg {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--r-pill);
+  background: var(--soft);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.seg-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.seg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 34px;
+  padding: 0 4px;
+  white-space: nowrap;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: var(--sub);
+  font-size: 13px;
+  font-weight: 700;
+}
+.seg-btn[aria-selected="true"],
+.seg-btn[aria-checked="true"] {
+  background: var(--gloss), var(--accent);
+  box-shadow: var(--gloss-line);
+  color: var(--accent-text);
+}
+
+.seg-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ---------- 設定 ---------- */
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.settings-row:last-child {
+  border-bottom: 0;
+}
+.settings-row > div:not(.seg) {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.settings-row-col {
+  flex-direction: column;
+  align-items: stretch;
+}
+.settings-name {
+  font-size: 14px;
+  font-weight: 700;
+}
+.settings-value {
+  flex: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+.settings-rest {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+}
+.settings-rest-time {
+  min-width: 44px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+}
+.settings-backup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.settings-last {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.settings-last.is-stale {
+  color: var(--warn);
+}
+.settings-about {
+  padding: 4px 0 10px;
+}
+.settings .calc-help {
+  margin-top: 10px;
+}
+.import-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.import-counts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 16px;
+  font-weight: 600;
+}
+.import-counts li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 2px;
+  background: var(--soft);
+}
+.import-counts span {
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sub);
+}
+.settings-backup .action-pair {
+  grid-template-columns: 1fr 1fr;
+}

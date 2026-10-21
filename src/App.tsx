@@ -5,16 +5,19 @@ import { TabBar } from './components/TabBar'
 import type { TabId } from './components/TabBar'
 import { useToast } from './components/Toast'
 import { db } from './data/db'
+import { getSettings } from './data/settings'
 import { itemsFromSession, startFromTemplate } from './data/templates'
 import type { TemplateItem } from './data/templates'
 import { getActiveSession, startSession } from './data/workout'
 import { formatDate } from './lib/format'
+import { applyTheme } from './lib/theme'
 import { ExercisesScreen } from './screens/ExercisesScreen'
 import { HomeScreen } from './screens/HomeScreen'
 import { HistoryDetailScreen } from './screens/HistoryDetailScreen'
 import { HistoryScreen } from './screens/HistoryScreen'
 import { AnalysisScreen } from './screens/AnalysisScreen'
 import { ReviewScreen } from './screens/ReviewScreen'
+import { SettingsScreen } from './screens/SettingsScreen'
 import { ShareScreen } from './screens/ShareScreen'
 import { SummaryScreen } from './screens/SummaryScreen'
 import { TemplateEditScreen } from './screens/TemplateEditScreen'
@@ -35,6 +38,7 @@ type View =
   | { kind: 'summary'; sessionId: string }
   | { kind: 'share'; sessionId: string; from: 'summary' | 'history' }
   | { kind: 'template'; id: string | null; initial?: { name: string; items: TemplateItem[] } }
+  | { kind: 'settings' }
 
 export default function App() {
   const [tab, setTab] = useState<TabId>('home')
@@ -46,6 +50,12 @@ export default function App() {
 
   // トレーニング中のもの（なければ null）。中身が変わると自動で更新される
   const active = useLiveQuery(async () => (await getActiveSession()) ?? null, [])
+
+  // テーマ：設定が変わったら（読み込みで変わったときも）すぐ入れかえる
+  const theme = useLiveQuery(async () => (await getSettings()).theme, [])
+  useEffect(() => {
+    if (theme) applyTheme(theme)
+  }, [theme])
 
   // アプリを開いたとき、トレーニングの途中だったら、その画面から続ける
   const resumed = useRef(false)
@@ -72,6 +82,15 @@ export default function App() {
             if (message) toast.show(message)
           }}
         />
+        {toast.node}
+      </div>
+    )
+  }
+
+  if (view.kind === 'settings') {
+    return (
+      <div className="app app-workout">
+        <SettingsScreen onBack={() => setView({ kind: 'tabs' })} onToast={toast.show} />
         {toast.node}
       </div>
     )
@@ -173,7 +192,7 @@ export default function App() {
         <HomeScreen
           activeStartedAt={active?.startedAt ?? null}
           onStart={() => (active ? setView({ kind: 'workout' }) : setStarting(true))}
-          onOpenSettings={() => toast.show('設定は段階12で作ります')}
+          onOpenSettings={() => setView({ kind: 'settings' })}
           onEditTemplate={(id) => setView({ kind: 'template', id })}
           onStartTemplate={startTemplate}
           onOpenHistory={(sessionId) => {

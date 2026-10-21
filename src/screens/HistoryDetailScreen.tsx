@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Check, ChevronLeft, Copy, Image as ImageIcon, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Check, ChevronLeft, ClipboardList, Copy, Image as ImageIcon, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Dialog } from '../components/Dialog'
 import { CalcHelp, ExerciseResults, GroupChips, StatGrid } from '../components/SessionReport'
@@ -22,6 +22,8 @@ type Props = {
   onBack: () => void
   onShare: (sessionId: string) => void
   onStartCopy: (sessionId: string) => void
+  /** この回の種目とセット数で、メニューを作る */
+  onMakeTemplate: (sessionId: string) => void
   onToast: (message: string) => void
 }
 
@@ -29,7 +31,7 @@ type Block = { we: WorkoutExercise; exercise: Exercise | undefined; sets: Workou
 
 const EFFORTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-export function HistoryDetailScreen({ sessionId, onBack, onShare, onStartCopy, onToast }: Props) {
+export function HistoryDetailScreen({ sessionId, onBack, onShare, onStartCopy, onMakeTemplate, onToast }: Props) {
   const [editing, setEditing] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -123,6 +125,10 @@ export function HistoryDetailScreen({ sessionId, onBack, onShare, onStartCopy, o
                 編集
               </button>
             </div>
+            <button type="button" className="btn btn-lg btn-block" onClick={() => onMakeTemplate(sessionId)}>
+              <ClipboardList strokeWidth={2} aria-hidden />
+              この内容をメニューにする
+            </button>
             <button type="button" className="link-btn link-danger" onClick={() => setDeleting(true)}>
               この記録を削除
             </button>

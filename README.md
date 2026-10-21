@@ -72,6 +72,7 @@ src/
     stats.ts             日ごと・筋群ごとのセット数の集計
     summary.ts           1回分のまとめ・前回比・自己ベストの判定と保存・計算し直し
     history.ts           履歴の一覧・削除・日時の変更
+    templates.ts         トレーニングメニュー（保存・複製・過去の記録から作る・メニューからはじめる）
   lib/
     format.ts            重量・時間・日付の表示の形
     date.ts              日付の計算（その日・その週の始まり）
@@ -92,7 +93,8 @@ src/
     drawShareImage.ts    Canvas に描いて PNG にする（フォント待ち・はみ出し防止・折り返し）
     shareActions.ts      共有シート（navigator.share）と保存
     HistoryScreen.tsx    履歴（回数・月のカレンダー・日付ごとの一覧）
-    HistoryDetailScreen.tsx  過去の記録の詳細・編集・複製・削除
+    HistoryDetailScreen.tsx  過去の記録の詳細・編集・複製・削除・メニューにする
+    TemplateEditScreen.tsx   メニューを作る・直す（種目・セット数・並べかえ）
     PlaceholderScreens.tsx  分析（今は枠だけ）
   styles/
     tokens.css           デザインのトークン（色・角丸・影）。色はここだけに書く

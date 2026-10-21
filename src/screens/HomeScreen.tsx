@@ -1,10 +1,12 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { History, Play, Settings, Trophy } from 'lucide-react'
+import { ChevronRight, ClipboardList, History, Play, Plus, Settings, Trophy } from 'lucide-react'
 import { BrandMark } from '../components/BrandMark'
 import { EmptyState } from '../components/EmptyState'
 import { HEATMAP_WEEKS } from '../components/TrainingHeatmap'
 import { TrainingHeatmapList } from '../components/TrainingHeatmapList'
+import { groupColor } from '../data/muscleGroups'
 import { getDailySets } from '../data/stats'
+import { listTemplates } from '../data/templates'
 import { addDays, dayKey, startOfDay, startOfWeek } from '../lib/date'
 
 type Props = {
@@ -12,6 +14,10 @@ type Props = {
   activeStartedAt: number | null
   onStart: () => void
   onOpenSettings: () => void
+  /** メニューを直す（null なら新しく作る） */
+  onEditTemplate: (templateId: string | null) => void
+  /** メニューからはじめる */
+  onStartTemplate: (templateId: string) => void
 }
 
 // 今週（月曜はじまり）の7日を返す
@@ -28,7 +34,7 @@ function thisWeek(today = new Date()): Date[] {
 
 const WEEKDAYS = ['月', '火', '水', '木', '金', '土', '日']
 
-export function HomeScreen({ activeStartedAt, onStart, onOpenSettings }: Props) {
+export function HomeScreen({ activeStartedAt, onStart, onOpenSettings, onEditTemplate, onStartTemplate }: Props) {
   const today = new Date()
   const week = thisWeek(today)
 
@@ -38,6 +44,7 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings }: Props) 
   const daily = useLiveQuery(() => getDailySets(from, addDays(todayStart, 1)), [from, todayStart])
   // 今週トレーニングした日
   const doneDays = new Set(week.map((d) => dayKey(d.getTime())).filter((k) => daily?.has(k)))
+  const templates = useLiveQuery(() => listTemplates(), [])
 
   return (
     <section className="screen">
@@ -60,7 +67,7 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings }: Props) 
         </p>
         <h1 className="start-title">今日のトレーニング</h1>
         <p className="start-sub">
-          {activeStartedAt ? 'トレーニングの途中です。続きから記録できます' : '前回と同じ種目か、何も決めずにはじめられます'}
+          {activeStartedAt ? 'トレーニングの途中です。続きから記録できます' : 'メニューや前回と同じ種目からはじめられます'}
         </p>
         <button type="button" className="btn btn-primary btn-lg btn-block" onClick={onStart}>
           <Play strokeWidth={2} aria-hidden />
@@ -85,6 +92,66 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings }: Props) 
             )
           })}
         </ol>
+      </div>
+
+      {/* メニュー：押すと直す、▶ でそのメニューからはじめる */}
+      <div>
+        <div className="row-between">
+          <h2 className="section-title">メニュー</h2>
+          <button type="button" className="link-btn section-link" onClick={() => onEditTemplate(null)}>
+            <Plus strokeWidth={2} aria-hidden />
+            作る
+          </button>
+        </div>
+        {templates && templates.length === 0 ? (
+          <div className="card">
+            <EmptyState
+              icon={ClipboardList}
+              text="よくやる種目をメニューにすると、すぐにはじめられます"
+              action={
+                <button type="button" className="btn" onClick={() => onEditTemplate(null)}>
+                  <Plus strokeWidth={2} aria-hidden />
+                  メニューを作る
+                </button>
+              }
+            />
+          </div>
+        ) : (
+          <ul className="card list">
+            {templates?.map(({ template, names, groups, sets }) => (
+              <li key={template.id} className="list-row template-row">
+                <button type="button" className="template-open" onClick={() => onEditTemplate(template.id)}>
+                  <span className="template-row-top">
+                    <span className="list-name">{template.name}</span>
+                    <span className="template-dots">
+                      {groups.map((g) => (
+                        <span key={g} className="cal-dot" style={groupColor(g)} />
+                      ))}
+                    </span>
+                  </span>
+                  <span className="list-sub template-row-sub">
+                    <span className="num">
+                      {names.length}種目・{sets}セット
+                    </span>
+                    <span className="sep-dot">｜</span>{names.join('・')}
+                  </span>
+                </button>
+                {activeStartedAt ? (
+                  <ChevronRight className="chev" strokeWidth={2} aria-hidden />
+                ) : (
+                  <button
+                    type="button"
+                    className="rest-btn rest-btn-go template-go"
+                    aria-label={`${template.name}ではじめる`}
+                    onClick={() => onStartTemplate(template.id)}
+                  >
+                    <Play strokeWidth={2.4} aria-hidden />
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div>

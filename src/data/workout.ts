@@ -18,23 +18,40 @@ export async function getLastDoneSession(): Promise<WorkoutSession | undefined> 
   return list.find((s) => s.status === 'done')
 }
 
-/** 新しいトレーニングを始める。copyFrom を渡すと、その回と同じ種目を同じ順で入れる */
-export async function startSession(copyFrom?: string): Promise<string> {
+/** 新しいトレーニングを始めるときの中身：種目と、用意するセット数 */
+export type StartItem = { exerciseId: string; sets: number }
+
+/**
+ * 新しいトレーニングを始める
+ * ・copyFrom：その回と同じ種目を、同じセット数で用意する（前回と同じ・履歴から複製）
+ * ・items / templateId：メニューからはじめるとき
+ */
+export async function startSession(copyFrom?: string, items?: StartItem[], templateId: string | null = null): Promise<string> {
   const id = crypto.randomUUID()
   await db.transaction('rw', db.sessions, db.workoutExercises, db.sets, async () => {
     await db.sessions.add({
       id,
       startedAt: Date.now(),
       endedAt: null,
-      templateId: null,
+      templateId,
       status: 'active',
       effort: null,
       note: null,
     })
+    let list = items ?? []
     if (copyFrom) {
-      const items = await db.workoutExercises.where('sessionId').equals(copyFrom).sortBy('order')
-      for (const item of items) await addExerciseToSession(id, item.exerciseId)
+      const src = await db.workoutExercises.where('sessionId').equals(copyFrom).sortBy('order')
+      list = []
+      for (const we of src) {
+        const n = await db.sets
+          .where('workoutExerciseId')
+          .equals(we.id)
+          .filter((s) => s.completedAt !== null && s.kind === 'normal')
+          .count()
+        list.push({ exerciseId: we.exerciseId, sets: Math.max(1, n) })
+      }
     }
+    for (const item of list) await addExerciseToSession(id, item.exerciseId, item.sets)
   })
   return id
 }
@@ -66,14 +83,20 @@ export async function getPrevious(exerciseId: string, exceptSessionId: string): 
   return sets.length ? { startedAt: best.session.startedAt, sets } : null
 }
 
-/** 種目を加える。最初のセットは前回の1セット目の値を入れておく（完了はしていない状態） */
-export async function addExerciseToSession(sessionId: string, exerciseId: string): Promise<string> {
+/**
+ * 種目を加える。setCount の数だけセットを用意する（完了はしていない状態）
+ * 値は前回の同じ番号の本番セットから入れる（なければ前回の最後のセット）
+ */
+export async function addExerciseToSession(sessionId: string, exerciseId: string, setCount = 1): Promise<string> {
   const id = crypto.randomUUID()
   const count = await db.workoutExercises.where('sessionId').equals(sessionId).count()
   await db.workoutExercises.add({ id, sessionId, exerciseId, order: count, note: null })
   const prev = await getPrevious(exerciseId, sessionId)
-  const first = prev?.sets.find((s) => s.kind === 'normal') ?? prev?.sets[0]
-  await db.sets.add(newSet(id, sessionId, 0, first))
+  const normals = prev?.sets.filter((s) => s.kind === 'normal') ?? []
+  for (let i = 0; i < Math.max(1, setCount); i++) {
+    const from = normals[i] ?? normals[normals.length - 1] ?? prev?.sets[0]
+    await db.sets.add(newSet(id, sessionId, i, from))
+  }
   return id
 }
 

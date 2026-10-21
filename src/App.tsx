@@ -4,7 +4,11 @@ import { StartDialog } from './components/StartDialog'
 import { TabBar } from './components/TabBar'
 import type { TabId } from './components/TabBar'
 import { useToast } from './components/Toast'
+import { db } from './data/db'
+import { itemsFromSession, startFromTemplate } from './data/templates'
+import type { TemplateItem } from './data/templates'
 import { getActiveSession, startSession } from './data/workout'
+import { formatDate } from './lib/format'
 import { ExercisesScreen } from './screens/ExercisesScreen'
 import { HomeScreen } from './screens/HomeScreen'
 import { HistoryDetailScreen } from './screens/HistoryDetailScreen'
@@ -13,6 +17,7 @@ import { AnalysisScreen } from './screens/PlaceholderScreens'
 import { ReviewScreen } from './screens/ReviewScreen'
 import { ShareScreen } from './screens/ShareScreen'
 import { SummaryScreen } from './screens/SummaryScreen'
+import { TemplateEditScreen } from './screens/TemplateEditScreen'
 import { WorkoutScreen } from './screens/WorkoutScreen'
 
 /*
@@ -20,6 +25,7 @@ import { WorkoutScreen } from './screens/WorkoutScreen'
   ・tabs：下のタブの4画面
   ・workout：トレーニング中 → review：振り返り → summary：トレーニング終了 → share：共有画像
   ・履歴の詳細は historyDetail で持つ（共有画像から戻ったときも、同じ詳細に戻る）
+  ・template：メニューを作る・直す（閉じたら元のタブへ）
   トレーニング中〜終了の間は、下のタブを出さない
 */
 type View =
@@ -28,6 +34,7 @@ type View =
   | { kind: 'review' }
   | { kind: 'summary'; sessionId: string }
   | { kind: 'share'; sessionId: string; from: 'summary' | 'history' }
+  | { kind: 'template'; id: string | null; initial?: { name: string; items: TemplateItem[] } }
 
 export default function App() {
   const [tab, setTab] = useState<TabId>('home')
@@ -52,6 +59,22 @@ export default function App() {
     setView({ kind: 'tabs' })
     setTab('home')
     if (message) toast.show(message)
+  }
+
+  if (view.kind === 'template') {
+    return (
+      <div className="app app-workout">
+        <TemplateEditScreen
+          templateId={view.id}
+          initial={view.initial}
+          onClose={(message) => {
+            setView({ kind: 'tabs' })
+            if (message) toast.show(message)
+          }}
+        />
+        {toast.node}
+      </div>
+    )
   }
 
   if (view.kind === 'share') {
@@ -110,6 +133,22 @@ export default function App() {
     setView({ kind: 'workout' })
   }
 
+  // メニューからはじめる
+  const startTemplate = async (templateId: string) => {
+    if (active) {
+      toast.show('トレーニングの途中です。先に終えてください')
+      return
+    }
+    if (await startFromTemplate(templateId)) setView({ kind: 'workout' })
+  }
+
+  // 過去の記録から、メニューを作る（名前は日付から。保存前に変えられる）
+  const makeTemplate = async (sessionId: string) => {
+    const items = await itemsFromSession(sessionId)
+    const s = await db.sessions.get(sessionId)
+    setView({ kind: 'template', id: null, initial: { name: s ? `${formatDate(s.startedAt, false)} のメニュー` : '', items } })
+  }
+
   // 履歴の詳細（下のタブは出さない）
   if (tab === 'history' && historyDetail) {
     return (
@@ -120,6 +159,7 @@ export default function App() {
           onBack={() => setHistoryDetail(null)}
           onShare={(sessionId) => setView({ kind: 'share', sessionId, from: 'history' })}
           onStartCopy={startCopy}
+          onMakeTemplate={makeTemplate}
           onToast={toast.show}
         />
         {toast.node}
@@ -134,6 +174,8 @@ export default function App() {
           activeStartedAt={active?.startedAt ?? null}
           onStart={() => (active ? setView({ kind: 'workout' }) : setStarting(true))}
           onOpenSettings={() => toast.show('設定は段階12で作ります')}
+          onEditTemplate={(id) => setView({ kind: 'template', id })}
+          onStartTemplate={startTemplate}
         />
       )}
       {tab === 'history' && <HistoryScreen onOpen={setHistoryDetail} />}

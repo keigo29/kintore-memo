@@ -1,0 +1,151 @@
+/*
+  デザインのトークン（Workstation デザインルールから）
+  ・部品の CSS には色を直接書かず、ここの変数だけを使う
+  ・ライトが基本。ダークは [data-theme="dark"] で同じ名前を入れかえる
+*/
+:root {
+  /* グレー */
+  --g0: #ffffff;
+  --g100: #f3f4f5;
+  --g200: #ebecef;
+  --g300: #d6d9dd;
+  --g350: #b1b8c2;
+  --g400: #9ba3ae;
+  --g500: #717680;
+  --g900: #181818;
+
+  /* ライト（基本） */
+  --bg: #efeff0;
+  --card: #ffffff;
+  --soft: #f3f3f4;
+  --paper: #ffffff;
+  --text: #181818;
+  --sub: #717680;
+  --line: #e4e4e7;
+  --grid: #f3f4f5;
+  --accent: #181818;
+  --accent-text: #ffffff;
+  --ok: #00c230;
+  --ok-soft: #e6f9ec;
+  --ok-text: #009b26;
+  --warn: #cc8b00;
+  --warn-soft: #fff6e6;
+  --danger: #f2280d;
+  --danger-soft: #fee9e7;
+  --backdrop: rgba(24, 24, 24, .35);
+  --glow2: color-mix(in srgb, var(--g300) 30%, transparent);
+
+  /* 影（ごく控えめ） */
+  --shadow-sm: 0 1px 2px rgba(24, 24, 24, .03);
+  --shadow-md: 0 1px 3px rgba(24, 24, 24, .04);
+  --shadow-lg: 0 8px 24px rgba(24, 24, 24, .10);
+
+  /* フェーズの色：セット中＝集中、休憩＝短い休憩 */
+  --phase-set: #ff5a00;
+  --phase-rest: #00c230;
+  --phase-long: #005cff;
+
+  /* 筋群の色：1つの筋群に1つの色。色相を離して、隣の筋群とまぎれないように
+     --mg-◯◯：本色（点・線・選んだときの枠）／ --mg-◯◯-light：グラデーションの明るい側 */
+  --mg-chest: #005cff;      --mg-chest-light: #5a9bff;      /* 青 */
+  --mg-back: #00b33c;       --mg-back-light: #4fd97a;       /* 緑 */
+  --mg-shoulders: #ff8a00;  --mg-shoulders-light: #ffc04d;  /* オレンジ */
+  --mg-arms: #8600ff;       --mg-arms-light: #b66bff;       /* 紫 */
+  --mg-legs: #00a8c6;       --mg-legs-light: #4fd8ec;       /* 水色 */
+  --mg-core: #f2b500;       --mg-core-light: #ffd95a;       /* 黄 */
+  --mg-other: #717680;      --mg-other-light: #b1b8c2;      /* グレー */
+
+  /* 色の名前（パレットから）。部品ではこの名前で使う */
+  --c-blue: #005cff;
+  --c-green: #00c230;
+  --c-orange: #ff5a00;
+  --c-purple: #8600ff;
+
+  /* 筋群アイコン：体は白〜明るいグレー、鍛える筋肉はボタンと同じ黒グラデーション
+     （ダークでは逆：体は暗いグレー、鍛える筋肉は白。どちらも「鍛える筋肉＝ボタンの色」） */
+  --mi-base-top: #ffffff;
+  --mi-base-bottom: #dcdfe3;
+  --mi-groove: #b4b9c0;
+  --mi-on-top: #55575c;
+  --mi-on-bottom: #181818;
+
+  /* 筋群のグラデーション（同じ色の明るい→本色） */
+  --mg-chest-grad: linear-gradient(135deg, var(--mg-chest-light) 0%, var(--mg-chest) 100%);
+  --mg-back-grad: linear-gradient(135deg, var(--mg-back-light) 0%, var(--mg-back) 100%);
+  --mg-shoulders-grad: linear-gradient(135deg, var(--mg-shoulders-light) 0%, var(--mg-shoulders) 100%);
+  --mg-arms-grad: linear-gradient(135deg, var(--mg-arms-light) 0%, var(--mg-arms) 100%);
+  --mg-legs-grad: linear-gradient(135deg, var(--mg-legs-light) 0%, var(--mg-legs) 100%);
+  --mg-core-grad: linear-gradient(135deg, var(--mg-core-light) 0%, var(--mg-core) 100%);
+  --mg-other-grad: linear-gradient(135deg, var(--mg-other-light) 0%, var(--mg-other) 100%);
+
+  /* 色のグラデーション（白黒の土台の上に、ポイントで使う） */
+  --grad-fire: linear-gradient(135deg, #ffae00 0%, #ff5a00 45%, #f2280d 100%);
+  --grad-ocean: linear-gradient(135deg, #1fb8cc 0%, #005cff 100%);
+  --grad-violet: linear-gradient(135deg, #005cff 0%, #8600ff 100%);
+  --grad-mint: linear-gradient(135deg, #1fb8cc 0%, #00c230 100%);
+  --glow-fire: 0 8px 22px rgba(255, 90, 0, .28);
+
+  --world: #3fdbed;
+
+  /* ツヤ：主なボタン・ロゴ・トーストなど、黒（アクセント）の面に重ねる黒グラデーション */
+  --gloss: radial-gradient(111% 112% at 23% 0%, rgba(255, 255, 255, .28) 0%, rgba(255, 255, 255, 0) 100%);
+  --gloss-line: inset 0 0 0 1px rgba(255, 255, 255, .3);
+
+  /* カードの四すみのかぎ括弧（参考デザインの印） */
+  --bracket: #b9bcc3;
+  --bracket-len: 10px;
+
+  /* 角丸 */
+  /* 角丸：参考に合わせて、ほぼ四角 */
+  --r-card: 2px;
+  --r-dialog: 4px;
+  --r-input: 3px;
+  --r-nav: 3px;
+  --r-rail: 3px;
+  --r-logo: 3px;
+  --r-pill: 3px;
+
+  /* 文字 */
+  --font: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+  /* 数字・英字・ロゴは Roboto Mono。日本語は Zen Kaku Gothic New（どちらも同梱） */
+  --font-mono: "Roboto Mono", "Zen Kaku Gothic New", ui-monospace, monospace;
+
+  /* 動き（0.3秒を超えない） */
+  --t-press: .08s;
+  --t-hover: .15s;
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  /* ダーク（設定で選んだとき）。影は none ではなく透明の影にする */
+  --bg: #0b0b0c;
+  --card: #181818;
+  --soft: #222326;
+  --paper: #26272b;
+  --text: #f3f4f5;
+  --sub: #9ba3ae;
+  --line: #2a2c30;
+  --grid: #202124;
+  --accent: #f3f4f5;
+  --accent-text: #181818;
+  --ok: #00c230;
+  --ok-soft: rgba(0, 194, 48, .14);
+  --ok-text: #33d167;
+  --warn: #ffc966;
+  --warn-soft: rgba(255, 174, 0, .14);
+  --danger: #f97b6f;
+  --danger-soft: rgba(242, 40, 13, .16);
+  --backdrop: rgba(24, 24, 24, .35);
+  --glow2: rgba(255, 255, 255, .025);
+  --shadow-sm: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, .5);
+  --bracket: #4a4d54;
+  --mi-base-top: #55585e;
+  --mi-base-bottom: #303236;
+  --mi-groove: #222326;
+  --mi-on-top: #ffffff;
+  --mi-on-bottom: #c9ccd1;
+  color-scheme: dark;
+}

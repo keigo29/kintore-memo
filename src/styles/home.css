@@ -1,0 +1,74 @@
+/* ホーム画面だけの見た目 */
+
+.start-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 18px 18px;
+}
+.start-date {
+  margin: 0;
+  color: var(--sub);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+.start-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+.start-sub {
+  margin: 0 0 12px;
+  color: var(--sub);
+  font-size: 13px;
+}
+
+/* 今週の7日 */
+.week-count {
+  font-size: 14px;
+  font-weight: 600;
+}
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.week-name {
+  color: var(--sub);
+  font-size: 11px;
+  font-weight: 700;
+}
+.week-mark {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 2px;
+  background: var(--soft);
+  color: var(--sub);
+  font-size: 12px;
+  font-weight: 600;
+}
+/* 今日：選んでいる状態と同じ「soft＋1.5px の内側の線」 */
+.week-day[data-today] .week-mark {
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--text);
+}
+/* やった日：主なボタンと同じ黒グラデーション */
+.week-day[data-done] .week-mark {
+  background: var(--gloss), var(--accent);
+  box-shadow: var(--gloss-line);
+  color: var(--accent-text);
+}
+

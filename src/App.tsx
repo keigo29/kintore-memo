@@ -8,11 +8,21 @@ import { getActiveSession } from './data/workout'
 import { ExercisesScreen } from './screens/ExercisesScreen'
 import { HomeScreen } from './screens/HomeScreen'
 import { AnalysisScreen, HistoryScreen } from './screens/PlaceholderScreens'
+import { ReviewScreen } from './screens/ReviewScreen'
+import { SummaryScreen } from './screens/SummaryScreen'
 import { WorkoutScreen } from './screens/WorkoutScreen'
+
+/*
+  いま出している画面
+  ・tabs：下のタブの4画面
+  ・workout：トレーニング中 → review：振り返り → summary：トレーニング終了
+  トレーニング中〜終了の間は、下のタブを出さない
+*/
+type View = { kind: 'tabs' } | { kind: 'workout' } | { kind: 'review' } | { kind: 'summary'; sessionId: string }
 
 export default function App() {
   const [tab, setTab] = useState<TabId>('home')
-  const [inWorkout, setInWorkout] = useState(false)
+  const [view, setView] = useState<View>({ kind: 'tabs' })
   const [starting, setStarting] = useState(false)
   const toast = useToast()
 
@@ -24,20 +34,41 @@ export default function App() {
   useEffect(() => {
     if (active === undefined || resumed.current) return
     resumed.current = true
-    if (active) setInWorkout(true)
+    if (active) setView({ kind: 'workout' })
   }, [active])
 
-  if (inWorkout && active) {
+  const backHome = (message?: string) => {
+    setView({ kind: 'tabs' })
+    setTab('home')
+    if (message) toast.show(message)
+  }
+
+  if (view.kind === 'summary') {
     return (
       <div className="app app-workout">
-        <WorkoutScreen
-          sessionId={active.id}
-          onExit={(message) => {
-            setInWorkout(false)
-            setTab('home')
-            toast.show(message)
-          }}
+        <SummaryScreen
+          sessionId={view.sessionId}
+          onClose={() => backHome()}
+          onShare={() => toast.show('共有画像は次の段階で作ります')}
         />
+        {toast.node}
+      </div>
+    )
+  }
+
+  if ((view.kind === 'workout' || view.kind === 'review') && active) {
+    return (
+      <div className="app app-workout">
+        {view.kind === 'workout' ? (
+          <WorkoutScreen sessionId={active.id} onExit={backHome} onReview={() => setView({ kind: 'review' })} />
+        ) : (
+          <ReviewScreen
+            sessionId={active.id}
+            onBack={() => setView({ kind: 'workout' })}
+            onSaved={(sessionId) => setView({ kind: 'summary', sessionId })}
+            onDiscarded={() => backHome('記録せずに終えました')}
+          />
+        )}
         {toast.node}
       </div>
     )
@@ -48,7 +79,7 @@ export default function App() {
       {tab === 'home' && (
         <HomeScreen
           activeStartedAt={active?.startedAt ?? null}
-          onStart={() => (active ? setInWorkout(true) : setStarting(true))}
+          onStart={() => (active ? setView({ kind: 'workout' }) : setStarting(true))}
           onOpenSettings={() => toast.show('設定は段階12で作ります')}
         />
       )}
@@ -62,7 +93,7 @@ export default function App() {
           onClose={() => setStarting(false)}
           onStarted={() => {
             setStarting(false)
-            setInWorkout(true)
+            setView({ kind: 'workout' })
           }}
         />
       )}

@@ -37,6 +37,11 @@ db.version(1).stores({
   settings: 'id',
 })
 
+// 2版：自己ベストを「どの回で出したか」で探せるように索引を足す（いまのデータはそのまま）
+db.version(2).stores({
+  records: 'id, exerciseId, [exerciseId+type], achievedAt, sessionId',
+})
+
 export const DEFAULT_SETTINGS: UserSettings = {
   id: 'me',
   theme: 'light',

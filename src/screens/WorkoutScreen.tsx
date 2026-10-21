@@ -21,9 +21,11 @@ import { ExerciseRecord } from './ExerciseRecord'
 type Props = {
   sessionId: string
   onExit: (message: string) => void
+  /** 完了したセットがあるときの「終える」：振り返り画面へ */
+  onReview: () => void
 }
 
-export function WorkoutScreen({ sessionId, onExit }: Props) {
+export function WorkoutScreen({ sessionId, onExit, onReview }: Props) {
   const now = useNow()
   const [openId, setOpenId] = useState<string | null>(null)
   const [picking, setPicking] = useState(false)
@@ -67,7 +69,8 @@ export function WorkoutScreen({ sessionId, onExit }: Props) {
           <span className="workout-label">トレーニング中</span>
           <span className="workout-time num">{formatDuration(now - session.startedAt)}</span>
         </div>
-        <button type="button" className="btn btn-primary" onClick={() => setFinishing(true)}>
+        {/* 完了したセットがあれば振り返りへ。なければ「記録せずに終える」かを聞く */}
+        <button type="button" className="btn btn-primary" onClick={() => (doneSets > 0 ? onReview() : setFinishing(true))}>
           終える
         </button>
       </header>

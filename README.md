@@ -15,6 +15,7 @@ npm run dev        # http://localhost:5173 で開く
 ```bash
 npm run build      # 型チェック＋本番用に書き出し（dist/）
 npm run preview    # 書き出したものを確認
+npm test           # 計算のテスト
 ```
 
 ## GitHub Pages で公開する
@@ -60,6 +61,7 @@ src/
     TrainingHeatmapList.tsx  「すべて」と筋群ごとの表を縦に並べる（ホーム）
     BrandMark.tsx        ロゴの銀色のダンベル
     RestTimer.tsx        休憩タイマーの帯
+    SessionReport.tsx    1回分のまとめの表示（数字のタイル・種目ごと・あと何回・計算のしかた）
   data/
     types.ts             データの型（種目・メニュー・記録・セット・自己ベスト・設定）
     db.ts                端末の中のデータベース（Dexie / IndexedDB）
@@ -68,16 +70,21 @@ src/
     exercises.ts         種目の追加・編集・隠す・検索用の文字そろえ
     workout.ts           トレーニングの開始・前回の記録・セットの完了・終了
     stats.ts             日ごと・筋群ごとのセット数の集計
+    summary.ts           1回分のまとめ・前回比・自己ベストの判定と保存
   lib/
     format.ts            重量・時間・日付の表示の形
     date.ts              日付の計算（その日・その週の始まり）
     useNow.ts            1秒ごとの時刻（経過時間）
     restTimer.ts         休憩タイマーのしくみ（終わる時刻で数える・端末に保存・音とバイブ）
+    calc.ts              計算のきまり（総挙上量・推定1RM・前回比・あと何回）
+    calc.test.ts         calc.ts のテスト（npm test）
   screens/
     HomeScreen.tsx       ホーム
     ExercisesScreen.tsx  種目（筋群で絞りこみ・検索・追加・編集・隠す）
     WorkoutScreen.tsx    トレーニング中（経過時間・種目の一覧・終える）
     ExerciseRecord.tsx   種目ごとのセットの記録
+    ReviewScreen.tsx     振り返り（記録の数字と、自分の感じ方を分けて）
+    SummaryScreen.tsx    トレーニング終了（その日の成果）
     PlaceholderScreens.tsx  履歴・分析（今は枠だけ）
   styles/
     tokens.css           デザインのトークン（色・角丸・影）。色はここだけに書く

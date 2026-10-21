@@ -5,13 +5,13 @@
       <stop offset="0" stop-color="#fff" stop-opacity=".28"/>
       <stop offset="1" stop-color="#fff" stop-opacity="0"/>
     </radialGradient>
-    <!-- ダンベル：銀色。明るい帯と暗い帯を交互にして、金属の照り返しに見せる -->
+    <!-- ダンベル：白に近い銀色。明るい帯とうすい灰色の帯を交互にして、ほんのり金属っぽく -->
     <linearGradient id="silver" gradientUnits="userSpaceOnUse" x1="3" y1="3" x2="21" y2="21">
       <stop offset="0" stop-color="#ffffff"/>
-      <stop offset=".32" stop-color="#c7ccd4"/>
-      <stop offset=".5" stop-color="#f5f7f9"/>
-      <stop offset=".72" stop-color="#959daa"/>
-      <stop offset="1" stop-color="#e3e7ec"/>
+      <stop offset=".32" stop-color="#e4e7eb"/>
+      <stop offset=".5" stop-color="#fbfcfd"/>
+      <stop offset=".72" stop-color="#c6ccd4"/>
+      <stop offset="1" stop-color="#f1f3f5"/>
     </linearGradient>
   </defs>
   <rect width="512" height="512" fill="#181818"/>

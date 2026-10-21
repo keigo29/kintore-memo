@@ -1,6 +1,6 @@
 import { useId } from 'react'
 
-// ロゴのダンベル（アプリアイコンと同じ銀色のグラデーション）
+// ロゴのダンベル（アプリアイコンと同じ、白に近い銀色のグラデーション）
 export function BrandMark() {
   const id = useId().replace(/:/g, '')
   return (
@@ -8,10 +8,10 @@ export function BrandMark() {
       <defs>
         <linearGradient id={id} gradientUnits="userSpaceOnUse" x1="3" y1="3" x2="21" y2="21">
           <stop offset="0" stopColor="#ffffff" />
-          <stop offset=".32" stopColor="#c7ccd4" />
-          <stop offset=".5" stopColor="#f5f7f9" />
-          <stop offset=".72" stopColor="#959daa" />
-          <stop offset="1" stopColor="#e3e7ec" />
+          <stop offset=".32" stopColor="#e4e7eb" />
+          <stop offset=".5" stopColor="#fbfcfd" />
+          <stop offset=".72" stopColor="#c6ccd4" />
+          <stop offset="1" stopColor="#f1f3f5" />
         </linearGradient>
       </defs>
       <g stroke={`url(#${id})`}>

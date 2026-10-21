@@ -85,6 +85,11 @@ src/
     ExerciseRecord.tsx   種目ごとのセットの記録
     ReviewScreen.tsx     振り返り（記録の数字と、自分の感じ方を分けて）
     SummaryScreen.tsx    トレーニング終了（その日の成果）
+    ShareScreen.tsx      共有画像のプレビュー・項目の選択・保存と共有
+  share/
+    shareLayout.ts       共有画像のレイアウト（アプリの画面とは別に管理）・出す中身の決め方
+    drawShareImage.ts    Canvas に描いて PNG にする（フォント待ち・はみ出し防止・折り返し）
+    shareActions.ts      共有シート（navigator.share）と保存
     PlaceholderScreens.tsx  履歴・分析（今は枠だけ）
   styles/
     tokens.css           デザインのトークン（色・角丸・影）。色はここだけに書く

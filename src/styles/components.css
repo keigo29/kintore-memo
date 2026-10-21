@@ -1540,3 +1540,65 @@
   line-height: 1.7;
   white-space: pre-wrap;
 }
+
+/* ボタンが1つだけのときは、横いっぱいに */
+.action-pair > .btn:only-child {
+  grid-column: 1 / -1;
+}
+
+/* ---------- 共有画像 ---------- */
+.share {
+  padding-bottom: 100px;
+}
+.share-preview {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 9 / 16;
+  width: min(100%, 58dvh * 9 / 16);
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #0b0b0c;
+  box-shadow: var(--shadow-lg);
+  transition: opacity .15s;
+}
+.share-preview[data-drawing] {
+  opacity: .7;
+}
+.share-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.share-loading {
+  color: #9ba3ae;
+  font-size: 13px;
+}
+.share-item {
+  gap: 10px;
+}
+.share-item[data-off] .list-name {
+  color: var(--sub);
+}
+.share-help {
+  margin-top: 8px;
+}
+.share-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.share-msg {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--r-input);
+  background: var(--soft);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+}
+.share-msg[aria-checked="true"] {
+  box-shadow: inset 0 0 0 1.5px var(--text);
+}

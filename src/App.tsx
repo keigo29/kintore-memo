@@ -9,16 +9,22 @@ import { ExercisesScreen } from './screens/ExercisesScreen'
 import { HomeScreen } from './screens/HomeScreen'
 import { AnalysisScreen, HistoryScreen } from './screens/PlaceholderScreens'
 import { ReviewScreen } from './screens/ReviewScreen'
+import { ShareScreen } from './screens/ShareScreen'
 import { SummaryScreen } from './screens/SummaryScreen'
 import { WorkoutScreen } from './screens/WorkoutScreen'
 
 /*
   いま出している画面
   ・tabs：下のタブの4画面
-  ・workout：トレーニング中 → review：振り返り → summary：トレーニング終了
+  ・workout：トレーニング中 → review：振り返り → summary：トレーニング終了 → share：共有画像
   トレーニング中〜終了の間は、下のタブを出さない
 */
-type View = { kind: 'tabs' } | { kind: 'workout' } | { kind: 'review' } | { kind: 'summary'; sessionId: string }
+type View =
+  | { kind: 'tabs' }
+  | { kind: 'workout' }
+  | { kind: 'review' }
+  | { kind: 'summary'; sessionId: string }
+  | { kind: 'share'; sessionId: string }
 
 export default function App() {
   const [tab, setTab] = useState<TabId>('home')
@@ -43,13 +49,23 @@ export default function App() {
     if (message) toast.show(message)
   }
 
+  if (view.kind === 'share') {
+    const { sessionId } = view
+    return (
+      <div className="app app-workout">
+        <ShareScreen sessionId={sessionId} onBack={() => setView({ kind: 'summary', sessionId })} onToast={toast.show} />
+        {toast.node}
+      </div>
+    )
+  }
+
   if (view.kind === 'summary') {
     return (
       <div className="app app-workout">
         <SummaryScreen
           sessionId={view.sessionId}
           onClose={() => backHome()}
-          onShare={() => toast.show('共有画像は次の段階で作ります')}
+          onShare={(sessionId) => setView({ kind: 'share', sessionId })}
         />
         {toast.node}
       </div>

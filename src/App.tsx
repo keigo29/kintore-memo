@@ -4,10 +4,12 @@ import { StartDialog } from './components/StartDialog'
 import { TabBar } from './components/TabBar'
 import type { TabId } from './components/TabBar'
 import { useToast } from './components/Toast'
-import { getActiveSession } from './data/workout'
+import { getActiveSession, startSession } from './data/workout'
 import { ExercisesScreen } from './screens/ExercisesScreen'
 import { HomeScreen } from './screens/HomeScreen'
-import { AnalysisScreen, HistoryScreen } from './screens/PlaceholderScreens'
+import { HistoryDetailScreen } from './screens/HistoryDetailScreen'
+import { HistoryScreen } from './screens/HistoryScreen'
+import { AnalysisScreen } from './screens/PlaceholderScreens'
 import { ReviewScreen } from './screens/ReviewScreen'
 import { ShareScreen } from './screens/ShareScreen'
 import { SummaryScreen } from './screens/SummaryScreen'
@@ -17,6 +19,7 @@ import { WorkoutScreen } from './screens/WorkoutScreen'
   いま出している画面
   ・tabs：下のタブの4画面
   ・workout：トレーニング中 → review：振り返り → summary：トレーニング終了 → share：共有画像
+  ・履歴の詳細は historyDetail で持つ（共有画像から戻ったときも、同じ詳細に戻る）
   トレーニング中〜終了の間は、下のタブを出さない
 */
 type View =
@@ -24,12 +27,14 @@ type View =
   | { kind: 'workout' }
   | { kind: 'review' }
   | { kind: 'summary'; sessionId: string }
-  | { kind: 'share'; sessionId: string }
+  | { kind: 'share'; sessionId: string; from: 'summary' | 'history' }
 
 export default function App() {
   const [tab, setTab] = useState<TabId>('home')
   const [view, setView] = useState<View>({ kind: 'tabs' })
   const [starting, setStarting] = useState(false)
+  // 履歴で開いている詳細（共有画像から戻ったときも、同じ詳細に戻れるよう App で持つ）
+  const [historyDetail, setHistoryDetail] = useState<string | null>(null)
   const toast = useToast()
 
   // トレーニング中のもの（なければ null）。中身が変わると自動で更新される
@@ -53,7 +58,11 @@ export default function App() {
     const { sessionId } = view
     return (
       <div className="app app-workout">
-        <ShareScreen sessionId={sessionId} onBack={() => setView({ kind: 'summary', sessionId })} onToast={toast.show} />
+        <ShareScreen
+          sessionId={sessionId}
+          onBack={() => setView(view.from === 'summary' ? { kind: 'summary', sessionId } : { kind: 'tabs' })}
+          onToast={toast.show}
+        />
         {toast.node}
       </div>
     )
@@ -65,7 +74,7 @@ export default function App() {
         <SummaryScreen
           sessionId={view.sessionId}
           onClose={() => backHome()}
-          onShare={(sessionId) => setView({ kind: 'share', sessionId })}
+          onShare={(sessionId) => setView({ kind: 'share', sessionId, from: 'summary' })}
         />
         {toast.node}
       </div>
@@ -90,6 +99,34 @@ export default function App() {
     )
   }
 
+  // 過去のトレーニングと同じ種目ではじめる
+  const startCopy = async (sessionId: string) => {
+    if (active) {
+      toast.show('トレーニングの途中です。先に終えてください')
+      return
+    }
+    await startSession(sessionId)
+    setHistoryDetail(null)
+    setView({ kind: 'workout' })
+  }
+
+  // 履歴の詳細（下のタブは出さない）
+  if (tab === 'history' && historyDetail) {
+    return (
+      <div className="app app-workout">
+        <HistoryDetailScreen
+          key={historyDetail}
+          sessionId={historyDetail}
+          onBack={() => setHistoryDetail(null)}
+          onShare={(sessionId) => setView({ kind: 'share', sessionId, from: 'history' })}
+          onStartCopy={startCopy}
+          onToast={toast.show}
+        />
+        {toast.node}
+      </div>
+    )
+  }
+
   return (
     <div className="app">
       {tab === 'home' && (
@@ -99,7 +136,7 @@ export default function App() {
           onOpenSettings={() => toast.show('設定は段階12で作ります')}
         />
       )}
-      {tab === 'history' && <HistoryScreen />}
+      {tab === 'history' && <HistoryScreen onOpen={setHistoryDetail} />}
       {tab === 'analysis' && <AnalysisScreen />}
       {tab === 'exercises' && <ExercisesScreen onToast={toast.show} />}
 

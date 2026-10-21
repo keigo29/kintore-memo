@@ -70,7 +70,8 @@ src/
     exercises.ts         種目の追加・編集・隠す・検索用の文字そろえ
     workout.ts           トレーニングの開始・前回の記録・セットの完了・終了
     stats.ts             日ごと・筋群ごとのセット数の集計
-    summary.ts           1回分のまとめ・前回比・自己ベストの判定と保存
+    summary.ts           1回分のまとめ・前回比・自己ベストの判定と保存・計算し直し
+    history.ts           履歴の一覧・削除・日時の変更
   lib/
     format.ts            重量・時間・日付の表示の形
     date.ts              日付の計算（その日・その週の始まり）
@@ -90,7 +91,9 @@ src/
     shareLayout.ts       共有画像のレイアウト（アプリの画面とは別に管理）・出す中身の決め方
     drawShareImage.ts    Canvas に描いて PNG にする（フォント待ち・はみ出し防止・折り返し）
     shareActions.ts      共有シート（navigator.share）と保存
-    PlaceholderScreens.tsx  履歴・分析（今は枠だけ）
+    HistoryScreen.tsx    履歴（回数・月のカレンダー・日付ごとの一覧）
+    HistoryDetailScreen.tsx  過去の記録の詳細・編集・複製・削除
+    PlaceholderScreens.tsx  分析（今は枠だけ）
   styles/
     tokens.css           デザインのトークン（色・角丸・影）。色はここだけに書く
     base.css             全体の土台

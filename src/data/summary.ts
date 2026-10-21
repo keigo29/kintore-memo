@@ -136,7 +136,7 @@ export async function getSessionSummary(sessionId: string, now = Date.now()): Pr
 }
 
 /** 自己ベストを保存する（何度呼んでも同じ結果になるよう、この回の分を消してから入れ直す） */
-async function saveRecords(summary: SessionSummary) {
+export async function saveRecords(summary: SessionSummary) {
   const sessionId = summary.session.id
   const rows: PersonalRecord[] = []
   for (const e of summary.exercises) {
@@ -166,4 +166,17 @@ export async function finishWithReview(sessionId: string, effort: number | null,
   await db.sessions.update(sessionId, { effort, note: note?.trim() ? note.trim() : null })
   const summary = await getSessionSummary(sessionId)
   if (summary) await saveRecords(summary)
+}
+
+/**
+ * 自己ベストをすべて計算し直す（過去の記録を直した・消したとき）
+ * ・ある回を直すと、それより後の回の「更新したか」も変わるので、全部を古い順にやり直す
+ */
+export async function rebuildAllRecords(): Promise<void> {
+  const sessions = (await db.sessions.orderBy('startedAt').toArray()).filter((s) => s.status === 'done')
+  await db.records.clear()
+  for (const s of sessions) {
+    const summary = await getSessionSummary(s.id)
+    if (summary) await saveRecords(summary)
+  }
 }

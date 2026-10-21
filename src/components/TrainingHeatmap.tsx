@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MUSCLE_GROUPS, groupColor } from '../data/muscleGroups'
+import { MUSCLE_GROUPS } from '../data/muscleGroups'
 import type { MuscleGroup } from '../data/muscleGroups'
 import type { DailySets } from '../data/stats'
 import { setsOnDay } from '../data/stats'
@@ -7,10 +7,11 @@ import { addDays, dayKey, startOfWeek } from '../lib/date'
 import { formatDate } from '../lib/format'
 
 /*
-  鍛えた日の記録（GitHub の「草」のような表）
+  鍛えた日の記録（GitHub の「草」のような表）を1つ描く
   ・1マス＝1日。たては月〜日、よこは週（右がいちばん新しい週）
   ・濃さ＝その日に完了した本番セットの数（5段階）
-  ・色は単色のグラデーション：「すべて」は黒（ボタンの色）、筋群を選ぶとその筋群の色
+  ・色は単色のグラデーション：group が null なら黒（ボタンの色）、筋群ならその筋群の色
+  ・ホームでは「すべて」と筋群ごとの表を縦に並べる（TrainingHeatmapList）
 */
 export const HEATMAP_WEEKS = 17
 
@@ -32,14 +33,28 @@ const WEEKDAY_LABELS: [number, string][] = [
   [4, '金'],
 ]
 
-type Props = {
-  daily: DailySets
-  /** 今日（テストで日付を固定できるように外から渡す） */
-  today: number
+/** 期間内でトレーニングした日数と、合計セット数 */
+export function summarize(daily: DailySets, today: number, group: MuscleGroup | null) {
+  const from = addDays(startOfWeek(today), -7 * (HEATMAP_WEEKS - 1))
+  let days = 0
+  let sets = 0
+  for (let ms = from; ms <= today; ms = addDays(ms, 1)) {
+    const n = setsOnDay(daily, dayKey(ms), group)
+    if (n > 0) days++
+    sets += n
+  }
+  return { days, sets }
 }
 
-export function TrainingHeatmap({ daily, today }: Props) {
-  const [group, setGroup] = useState<MuscleGroup | null>(null)
+type Props = {
+  daily: DailySets
+  /** 今日の 0:00 */
+  today: number
+  /** null ＝ すべての筋群 */
+  group: MuscleGroup | null
+}
+
+export function TrainingHeatmap({ daily, today, group }: Props) {
   const [picked, setPicked] = useState<number | null>(null)
 
   const firstWeek = addDays(startOfWeek(today), -7 * (HEATMAP_WEEKS - 1))
@@ -55,7 +70,6 @@ export function TrainingHeatmap({ daily, today }: Props) {
   const cells: { x: number; y: number; ms: number; n: number }[] = []
   const monthLabels: { x: number; text: string }[] = []
   let lastMonth = -1
-  let trainedDays = 0
   for (let w = 0; w < HEATMAP_WEEKS; w++) {
     const weekStart = addDays(firstWeek, w * 7)
     const month = new Date(weekStart).getMonth()
@@ -70,9 +84,7 @@ export function TrainingHeatmap({ daily, today }: Props) {
     for (let d = 0; d < 7; d++) {
       const ms = addDays(weekStart, d)
       if (ms > today) continue
-      const n = setsOnDay(daily, dayKey(ms), group)
-      if (n > 0) trainedDays++
-      cells.push({ x: LEFT + w * STEP, y: TOP + d * STEP, ms, n })
+      cells.push({ x: LEFT + w * STEP, y: TOP + d * STEP, ms, n: setsOnDay(daily, dayKey(ms), group) })
     }
   }
 
@@ -90,27 +102,7 @@ export function TrainingHeatmap({ daily, today }: Props) {
 
   return (
     <div className="heatmap">
-      <div className="heatmap-filter" role="radiogroup" aria-label="筋群で切りかえる">
-        <button type="button" role="radio" aria-checked={group === null} className="hm-chip" onClick={() => setGroup(null)}>
-          すべて
-        </button>
-        {MUSCLE_GROUPS.map(({ id, name }) => (
-          <button
-            key={id}
-            type="button"
-            role="radio"
-            aria-checked={group === id}
-            className="hm-chip"
-            style={groupColor(id)}
-            onClick={() => setGroup(group === id ? null : id)}
-          >
-            <span className="dot" aria-hidden />
-            {name}
-          </button>
-        ))}
-      </div>
-
-      <svg className="heatmap-svg" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`直近${HEATMAP_WEEKS}週で${trainedDays}日`}>
+      <svg className="heatmap-svg" viewBox={`0 0 ${width} ${height}`} aria-hidden>
         {monthLabels.map((m) => (
           <text key={m.x} x={m.x} y={9} className="hm-label">
             {m.text}
@@ -138,34 +130,33 @@ export function TrainingHeatmap({ daily, today }: Props) {
         ))}
       </svg>
 
-      <div className="heatmap-foot">
-        <span className="heatmap-info">
-          {pickedCell ? (
-            <>
-              <span className="num">{formatDate(pickedCell.ms)}</span>{' '}
-              {pickedCell.n === 0
-                ? '記録なし'
-                : group
-                  ? `${pickedCell.n}セット`
-                  : `${pickedCell.n}セット（${breakdown(pickedCell.ms)}）`}
-            </>
-          ) : (
-            <>
-              直近{HEATMAP_WEEKS}週で <span className="num">{trainedDays}</span>日
-            </>
-          )}
-        </span>
-        {/* 日を押しているときは内訳を広く見せるため、濃さの見本は隠す */}
-        {!pickedCell && (
-          <span className="heatmap-legend" aria-hidden>
-            少
-            {MIX.map((_, i) => (
-              <i key={i} style={{ background: fillOf(i) }} />
-            ))}
-            多
-          </span>
-        )}
-      </div>
+      {/* マスを押したときだけ、その日の内訳を出す */}
+      {pickedCell && (
+        <p className="heatmap-info">
+          <span className="num">{formatDate(pickedCell.ms)}</span>{' '}
+          {pickedCell.n === 0
+            ? '記録なし'
+            : group
+              ? `${pickedCell.n}セット`
+              : `${pickedCell.n}セット（${breakdown(pickedCell.ms)}）`}
+        </p>
+      )}
     </div>
+  )
+}
+
+/** 濃さの見本：少 □□□□□ 多（「すべて」の黒で見せる） */
+export function HeatmapLegend() {
+  return (
+    <span className="heatmap-legend" aria-hidden>
+      少
+      {MIX.map((m, i) => (
+        <i
+          key={i}
+          style={{ background: i === 0 ? 'var(--soft)' : `color-mix(in srgb, var(--accent) ${m}%, var(--soft))` }}
+        />
+      ))}
+      多
+    </span>
   )
 }

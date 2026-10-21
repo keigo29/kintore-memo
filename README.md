@@ -56,7 +56,8 @@ src/
     StartDialog.tsx      はじめ方（何も決めずに／前回と同じ種目で）
     ExercisePickerDialog.tsx  トレーニング中に種目を選ぶ
     NumberStepper.tsx    大きな±で数字を入れる
-    TrainingHeatmap.tsx  鍛えた日の記録（GitHub の草のような表）
+    TrainingHeatmap.tsx  鍛えた日の記録（GitHub の草のような表）を1つ描く
+    TrainingHeatmapList.tsx  「すべて」と筋群ごとの表を縦に並べる（ホーム）
     BrandMark.tsx        ロゴの銀色のダンベル
   data/
     types.ts             データの型（種目・メニュー・記録・セット・自己ベスト・設定）

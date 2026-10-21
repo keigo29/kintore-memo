@@ -2,7 +2,8 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { History, Play, Settings, Trophy } from 'lucide-react'
 import { BrandMark } from '../components/BrandMark'
 import { EmptyState } from '../components/EmptyState'
-import { HEATMAP_WEEKS, TrainingHeatmap } from '../components/TrainingHeatmap'
+import { HEATMAP_WEEKS } from '../components/TrainingHeatmap'
+import { TrainingHeatmapList } from '../components/TrainingHeatmapList'
 import { getDailySets } from '../data/stats'
 import { addDays, dayKey, startOfDay, startOfWeek } from '../lib/date'
 
@@ -88,9 +89,7 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings }: Props) 
 
       <div>
         <h2 className="section-title">鍛えた日の記録</h2>
-        <div className="card">
-          {daily && <TrainingHeatmap daily={daily} today={todayStart} />}
-        </div>
+        {daily && <TrainingHeatmapList daily={daily} today={todayStart} />}
       </div>
 
       <div>

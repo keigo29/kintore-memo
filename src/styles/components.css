@@ -1048,40 +1048,71 @@
 }
 
 /* ---------- 鍛えた日の記録（草のような表） ---------- */
+.hm-list {
+  display: flex;
+  flex-direction: column;
+  padding-top: 12px;
+}
+.hm-list-head {
+  align-items: center;
+  padding-bottom: 4px;
+}
+/* 筋群ごとの段：上に細い線で区切る */
+.hm-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+.hm-row:first-of-type {
+  border-top: 0;
+}
+.hm-row:last-child {
+  padding-bottom: 4px;
+}
+.hm-row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hm-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 2px;
+  background: var(--soft);
+}
+.hm-icon-svg {
+  width: 24px;
+  height: 24px;
+}
+.hm-row-name {
+  flex: 1;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+.hm-row-stat {
+  font-size: 13px;
+  font-weight: 600;
+}
+.hm-sep {
+  margin: 0 3px;
+  color: var(--sub);
+  font-weight: 400;
+}
+.hm-none {
+  color: var(--sub);
+  font-family: var(--font);
+  font-weight: 500;
+}
 .heatmap {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-.heatmap-filter {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  margin: 0 -16px;
-  padding: 0 16px 2px;
-  scrollbar-width: none;
-}
-.heatmap-filter::-webkit-scrollbar {
-  display: none;
-}
-.hm-chip {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  gap: 5px;
-  height: 30px;
-  padding: 0 11px;
-  border: 0;
-  border-radius: var(--r-pill);
-  background: var(--soft);
-  color: var(--sub);
-  font-size: 12px;
-  font-weight: 600;
-}
-.hm-chip[aria-checked="true"] {
-  background: color-mix(in srgb, var(--dot, var(--text)) 12%, var(--soft));
-  box-shadow: inset 0 0 0 1.5px var(--dot, var(--text));
-  color: var(--text);
+  gap: 8px;
 }
 .heatmap-svg {
   display: block;
@@ -1097,23 +1128,14 @@
 .hm-cell {
   cursor: pointer;
 }
-/* 押した日：内側に濃い線 */
+/* 押した日：濃い線で囲む */
 .hm-cell.is-picked {
   stroke: var(--text);
   stroke-width: 1.5px;
 }
-.heatmap-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  min-height: 20px;
-  font-size: 12px;
-  color: var(--sub);
-}
 .heatmap-info {
-  min-width: 0;
-  color: var(--text);
+  margin: 0;
+  font-size: 12px;
   font-weight: 500;
 }
 .heatmap-legend {
@@ -1122,6 +1144,7 @@
   align-items: center;
   gap: 3px;
   font-size: 11px;
+  color: var(--sub);
 }
 .heatmap-legend i {
   width: 10px;

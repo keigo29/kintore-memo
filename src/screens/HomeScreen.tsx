@@ -1,4 +1,5 @@
-import { Dumbbell, History, Play, Settings, Trophy } from 'lucide-react'
+import { History, Play, Settings, Trophy } from 'lucide-react'
+import { BrandMark } from '../components/BrandMark'
 import { EmptyState } from '../components/EmptyState'
 
 type Props = {
@@ -33,7 +34,7 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings }: Props) 
       <header className="screen-head">
         <div className="brand">
           <span className="logo">
-            <Dumbbell strokeWidth={2} aria-hidden />
+            <BrandMark />
           </span>
           <span className="wordmark">筋トレメモ</span>
         </div>

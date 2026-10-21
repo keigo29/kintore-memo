@@ -171,7 +171,8 @@
   width: 34px;
   height: 34px;
   border-radius: var(--r-logo);
-  background: var(--gloss), var(--accent);
+  /* アプリアイコンと同じく、ダークでもいつも黒地に銀のダンベル */
+  background: var(--gloss), #181818;
   box-shadow: var(--gloss-line);
   color: var(--accent-text);
 }

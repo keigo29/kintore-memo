@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Dialog } from '../components/Dialog'
 import { ExercisePickerDialog } from '../components/ExercisePickerDialog'
 import { NumberStepper } from '../components/NumberStepper'
+import { RestTimer } from '../components/RestTimer'
 import { Switch } from '../components/Switch'
 import { DEFAULT_SETTINGS, db } from '../data/db'
 import { groupColor } from '../data/muscleGroups'
@@ -20,6 +21,7 @@ import {
   updateSet,
 } from '../data/workout'
 import { formatKg, formatShortDate } from '../lib/format'
+import { restTimer } from '../lib/restTimer'
 
 /*
   1つの種目の記録画面
@@ -63,13 +65,14 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
       sets,
       previous,
       step: (settings ?? DEFAULT_SETTINGS).weightStepKg,
+      restSeconds: (settings ?? DEFAULT_SETTINGS).restSeconds,
       // このトレーニングに入っている種目（種目を選ぶときに「追加ずみ」を出すため）
       addedIds: inSession.map((i) => i.exerciseId),
     }
   }, [workoutExerciseId])
 
   if (!data || !data.exercise) return null
-  const { we, exercise, sets, previous, step, addedIds } = data
+  const { we, exercise, sets, previous, step, restSeconds, addedIds } = data
   const bodyweight = exercise.isBodyweight
 
   // いま入力中のセット：選んだもの → まだ完了していない最初のセット → 最後のセット
@@ -109,6 +112,8 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
     const label = labels.get(active.id)
     await completeSet(active.id)
     navigator.vibrate?.(15)
+    // 休憩タイマーを自動でスタート（ウォームアップのあとも休憩する）
+    restTimer.start(restSeconds)
     // 完了したセットを選んだままにする（次のセットはまだ作らない）
     setActiveId(active.id)
     flash(label === 'W' ? 'ウォームアップを記録しました' : `${label}セット目を記録しました`)
@@ -336,6 +341,7 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
 
       {/* 下に固定：セット完了 */}
       <div className="action-bar">
+        <RestTimer />
         {message && (
           <div className="action-message" role="status">
             {message}

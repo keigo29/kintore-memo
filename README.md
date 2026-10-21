@@ -59,6 +59,7 @@ src/
     TrainingHeatmap.tsx  鍛えた日の記録（GitHub の草のような表）を1つ描く
     TrainingHeatmapList.tsx  「すべて」と筋群ごとの表を縦に並べる（ホーム）
     BrandMark.tsx        ロゴの銀色のダンベル
+    RestTimer.tsx        休憩タイマーの帯
   data/
     types.ts             データの型（種目・メニュー・記録・セット・自己ベスト・設定）
     db.ts                端末の中のデータベース（Dexie / IndexedDB）
@@ -71,6 +72,7 @@ src/
     format.ts            重量・時間・日付の表示の形
     date.ts              日付の計算（その日・その週の始まり）
     useNow.ts            1秒ごとの時刻（経過時間）
+    restTimer.ts         休憩タイマーのしくみ（終わる時刻で数える・端末に保存・音とバイブ）
   screens/
     HomeScreen.tsx       ホーム
     ExercisesScreen.tsx  種目（筋群で絞りこみ・検索・追加・編集・隠す）

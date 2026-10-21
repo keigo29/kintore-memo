@@ -755,8 +755,11 @@
 
 /* ---------- 記録画面 ---------- */
 .record {
-  /* 下に固定した「セット完了」に隠れないよう空ける */
-  padding-bottom: 90px;
+  /* 下に固定した休憩タイマーと「セット完了」に隠れないよう空ける */
+  padding-bottom: 150px;
+}
+.workout {
+  padding-bottom: 80px;
 }
 .record-head {
   gap: 10px;
@@ -1159,4 +1162,120 @@
   gap: 8px;
   width: 100%;
   max-width: 448px;
+}
+
+/* ---------- 休憩タイマーの帯 ---------- */
+.rest {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 448px;
+  min-height: 48px;
+  padding: 0 6px 0 12px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--r-input);
+  background: var(--soft);
+  color: var(--text);
+  text-align: left;
+}
+.rest-label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sub);
+  white-space: nowrap;
+}
+.rest-label svg {
+  width: 15px;
+  height: 15px;
+}
+.rest-time {
+  position: relative;
+  flex: 1;
+  font-size: 22px;
+  font-weight: 600;
+}
+.rest-actions {
+  position: relative;
+  display: flex;
+  gap: 4px;
+}
+.rest-btn {
+  display: grid;
+  place-items: center;
+  min-width: 38px;
+  height: 36px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  transition: transform var(--t-press);
+}
+.rest-btn:active {
+  transform: scale(.95);
+}
+.rest-btn svg {
+  width: 16px;
+  height: 16px;
+}
+.rest-btn-go {
+  background: var(--gloss), var(--accent);
+  box-shadow: var(--gloss-line);
+  color: var(--accent-text);
+}
+
+/* 休憩中：休憩の色（グリーン）で、残りぶんのバーが左から減っていく */
+.rest-running {
+  background: color-mix(in srgb, var(--phase-rest) 10%, var(--soft));
+}
+.rest-running .rest-label {
+  color: var(--ok-text);
+}
+.rest-bar {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--phase-rest) 22%, var(--soft));
+  transform-origin: left center;
+  transition: transform .25s linear;
+}
+.rest-running[data-paused] .rest-bar {
+  background: color-mix(in srgb, var(--sub) 18%, var(--soft));
+}
+.rest-running[data-paused] .rest-label {
+  color: var(--sub);
+}
+
+/* おわり：はっきり目立たせる */
+.rest-done {
+  background: var(--ok-soft);
+  animation: rest-pulse 1s ease-in-out 3;
+}
+.rest-done .rest-label {
+  color: var(--ok-text);
+  font-size: 14px;
+}
+.rest-done-sub {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+}
+.rest-close {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  color: var(--sub);
+}
+@keyframes rest-pulse {
+  50% {
+    background: color-mix(in srgb, var(--phase-rest) 30%, var(--soft));
+  }
 }

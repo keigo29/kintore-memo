@@ -3,11 +3,13 @@ import { ChevronRight, Dumbbell, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Dialog } from '../components/Dialog'
 import { EmptyState } from '../components/EmptyState'
+import { RestTimer } from '../components/RestTimer'
 import { ExercisePickerDialog } from '../components/ExercisePickerDialog'
 import { db } from '../data/db'
 import { groupColor } from '../data/muscleGroups'
 import { addExerciseToSession, discardSession, finishSession, getSessionExercises, getSets } from '../data/workout'
 import { formatDuration, formatKg } from '../lib/format'
+import { restTimer } from '../lib/restTimer'
 import { useNow } from '../lib/useNow'
 import { ExerciseRecord } from './ExerciseRecord'
 
@@ -59,7 +61,7 @@ export function WorkoutScreen({ sessionId, onExit }: Props) {
   }
 
   return (
-    <section className="screen">
+    <section className="screen workout">
       <header className="screen-head">
         <div className="workout-clock">
           <span className="workout-label">トレーニング中</span>
@@ -118,6 +120,11 @@ export function WorkoutScreen({ sessionId, onExit }: Props) {
         </>
       )}
 
+      {/* 種目の一覧の画面でも、休憩タイマーを下に出す */}
+      <div className="action-bar">
+        <RestTimer />
+      </div>
+
       {picking && (
         <ExercisePickerDialog
           addedIds={rows.map((r) => r.we.exerciseId)}
@@ -141,6 +148,7 @@ export function WorkoutScreen({ sessionId, onExit }: Props) {
                 className="btn btn-danger"
                 onClick={async () => {
                   await discardSession(sessionId)
+                  restTimer.reset()
                   onExit('記録せずに終えました')
                 }}
               >
@@ -156,6 +164,7 @@ export function WorkoutScreen({ sessionId, onExit }: Props) {
                 disabled={doneSets === 0}
                 onClick={async () => {
                   await finishSession(sessionId)
+                  restTimer.reset()
                   onExit('おつかれさまでした。記録を保存しました')
                 }}
               >

@@ -56,6 +56,8 @@ src/
     StartDialog.tsx      はじめ方（何も決めずに／前回と同じ種目で）
     ExercisePickerDialog.tsx  トレーニング中に種目を選ぶ
     NumberStepper.tsx    大きな±で数字を入れる
+    TrainingHeatmap.tsx  鍛えた日の記録（GitHub の草のような表）
+    BrandMark.tsx        ロゴの銀色のダンベル
   data/
     types.ts             データの型（種目・メニュー・記録・セット・自己ベスト・設定）
     db.ts                端末の中のデータベース（Dexie / IndexedDB）
@@ -63,8 +65,10 @@ src/
     muscleGroups.ts      筋群の一覧と色
     exercises.ts         種目の追加・編集・隠す・検索用の文字そろえ
     workout.ts           トレーニングの開始・前回の記録・セットの完了・終了
+    stats.ts             日ごと・筋群ごとのセット数の集計
   lib/
     format.ts            重量・時間・日付の表示の形
+    date.ts              日付の計算（その日・その週の始まり）
     useNow.ts            1秒ごとの時刻（経過時間）
   screens/
     HomeScreen.tsx       ホーム

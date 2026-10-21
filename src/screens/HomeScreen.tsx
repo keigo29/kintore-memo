@@ -1,6 +1,10 @@
+import { useLiveQuery } from 'dexie-react-hooks'
 import { History, Play, Settings, Trophy } from 'lucide-react'
 import { BrandMark } from '../components/BrandMark'
 import { EmptyState } from '../components/EmptyState'
+import { HEATMAP_WEEKS, TrainingHeatmap } from '../components/TrainingHeatmap'
+import { getDailySets } from '../data/stats'
+import { addDays, dayKey, startOfDay, startOfWeek } from '../lib/date'
 
 type Props = {
   /** トレーニング中なら、その開始時刻（なければ null） */
@@ -26,8 +30,13 @@ const WEEKDAYS = ['月', '火', '水', '木', '金', '土', '日']
 export function HomeScreen({ activeStartedAt, onStart, onOpenSettings }: Props) {
   const today = new Date()
   const week = thisWeek(today)
-  // まだ記録の保存がないので、今週の回数は本当に 0 回
-  const doneDays = new Set<string>()
+
+  // 草の表の期間（17週前の月曜〜今日）の、日ごとのセット数。今週の印にも使う
+  const todayStart = startOfDay(today.getTime())
+  const from = addDays(startOfWeek(todayStart), -7 * (HEATMAP_WEEKS - 1))
+  const daily = useLiveQuery(() => getDailySets(from, addDays(todayStart, 1)), [from, todayStart])
+  // 今週トレーニングした日
+  const doneDays = new Set(week.map((d) => dayKey(d.getTime())).filter((k) => daily?.has(k)))
 
   return (
     <section className="screen">
@@ -66,7 +75,7 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings }: Props) 
         <ol className="week">
           {week.map((d, i) => {
             const isToday = d.toDateString() === today.toDateString()
-            const done = doneDays.has(d.toDateString())
+            const done = doneDays.has(dayKey(d.getTime()))
             return (
               <li key={i} className="week-day" data-today={isToday || undefined} data-done={done || undefined}>
                 <span className="week-name">{WEEKDAYS[i]}</span>
@@ -75,6 +84,13 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings }: Props) 
             )
           })}
         </ol>
+      </div>
+
+      <div>
+        <h2 className="section-title">鍛えた日の記録</h2>
+        <div className="card">
+          {daily && <TrainingHeatmap daily={daily} today={todayStart} />}
+        </div>
       </div>
 
       <div>

@@ -6,7 +6,7 @@ import { DEFAULT_SETTINGS, db } from '../data/db'
 import { getSessionSummary } from '../data/summary'
 import type { ShareDefaults } from '../data/types'
 import { drawShareImage } from '../share/drawShareImage'
-import { canShareImage, saveImage, shareFileName, shareImage } from '../share/shareActions'
+import { canShareImage, isIOS, saveImage, saveToPhotos, shareFileName, shareImage } from '../share/shareActions'
 import { MESSAGE_PRESETS, availableItems, buildContent } from '../share/shareLayout'
 import { dayKey } from '../lib/date'
 
@@ -55,6 +55,7 @@ export function ShareScreen({ sessionId, onBack, onToast }: Props) {
   const [blob, setBlob] = useState<Blob | null>(null)
   const [url, setUrl] = useState<string | null>(null)
   const [drawing, setDrawing] = useState(false)
+  const [longPress, setLongPress] = useState(false)
   const run = useRef(0)
 
   useEffect(() => {
@@ -83,6 +84,7 @@ export function ShareScreen({ sessionId, onBack, onToast }: Props) {
   // ファイル名は端末の日付で（夜中でもずれないように）
   const fileName = shareFileName(dayKey(summary.session.startedAt))
   const shareable = canShareImage()
+  const ios = isIOS()
 
   const toggle = (key: keyof ShareDefaults, value: boolean) => {
     const next = { ...show, [key]: value }
@@ -99,10 +101,17 @@ export function ShareScreen({ sessionId, onBack, onToast }: Props) {
     const r = await shareImage(blob, fileName)
     if (r === 'failed') onToast('共有できませんでした。「保存」を使ってください')
   }
-  const onSave = () => {
+  const onSave = async () => {
     if (!blob) return
+    // iPhone：共有シートの「画像を保存」で写真アプリへ。だめなら、長押しで保存する画面を出す
+    if (ios) {
+      if (!shareable) return setLongPress(true)
+      const r = await saveToPhotos(blob, fileName)
+      if (r === 'failed') setLongPress(true)
+      return
+    }
     saveImage(blob, fileName)
-    onToast('画像を保存しました')
+    onToast(/Android/.test(navigator.userAgent) ? '画像を保存しました（フォトの「Download」に入ります）' : '画像を保存しました')
   }
 
   return (
@@ -179,6 +188,7 @@ export function ShareScreen({ sessionId, onBack, onToast }: Props) {
       )}
 
       <div className="action-bar">
+        {ios && shareable && <p className="action-message share-save-hint">保存 → 「画像を保存」で写真アプリに入ります</p>}
         <div className="action-pair">
           <button type="button" className={shareable ? 'btn btn-xl' : 'btn btn-primary btn-xl'} onClick={onSave} disabled={!blob}>
             <Download strokeWidth={2} aria-hidden />
@@ -192,6 +202,16 @@ export function ShareScreen({ sessionId, onBack, onToast }: Props) {
           )}
         </div>
       </div>
+      {longPress && url && (
+        // 共有シートが使えないときの最後の手：画像を長押しして「"写真"に追加」
+        <div className="longpress" onClick={() => setLongPress(false)}>
+          <p className="longpress-text">画像を長押しして「"写真"に追加」を選んでください</p>
+          <img src={url} alt="共有画像" className="longpress-img" onClick={(e) => e.stopPropagation()} />
+          <button type="button" className="btn btn-lg" onClick={() => setLongPress(false)}>
+            閉じる
+          </button>
+        </div>
+      )}
     </section>
   )
 }

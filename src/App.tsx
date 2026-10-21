@@ -13,7 +13,7 @@ import { ExercisesScreen } from './screens/ExercisesScreen'
 import { HomeScreen } from './screens/HomeScreen'
 import { HistoryDetailScreen } from './screens/HistoryDetailScreen'
 import { HistoryScreen } from './screens/HistoryScreen'
-import { AnalysisScreen } from './screens/PlaceholderScreens'
+import { AnalysisScreen } from './screens/AnalysisScreen'
 import { ReviewScreen } from './screens/ReviewScreen'
 import { ShareScreen } from './screens/ShareScreen'
 import { SummaryScreen } from './screens/SummaryScreen'
@@ -183,7 +183,14 @@ export default function App() {
         />
       )}
       {tab === 'history' && <HistoryScreen onOpen={setHistoryDetail} />}
-      {tab === 'analysis' && <AnalysisScreen />}
+      {tab === 'analysis' && (
+        <AnalysisScreen
+          onOpenSession={(id) => {
+            setHistoryDetail(id)
+            setTab('history')
+          }}
+        />
+      )}
       {tab === 'exercises' && <ExercisesScreen onToast={toast.show} />}
 
       <TabBar current={tab} onChange={setTab} />

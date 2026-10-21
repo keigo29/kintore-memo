@@ -1,0 +1,315 @@
+/* 分析画面だけの見た目 */
+
+/* 期間の切り替え（4つ並び） */
+.seg {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--r-pill);
+  background: var(--soft);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.seg-btn {
+  height: 34px;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: var(--sub);
+  font-size: 13px;
+  font-weight: 700;
+}
+.seg-btn[aria-selected="true"] {
+  background: var(--gloss), var(--accent);
+  box-shadow: var(--gloss-line);
+  color: var(--accent-text);
+}
+
+.an-stats {
+  grid-template-columns: repeat(2, 1fr);
+}
+.an-none {
+  margin: 0;
+  padding: 8px 0;
+  text-align: center;
+}
+
+/* 週ごとの回数 */
+.week-bars-plot {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  align-items: end;
+  gap: 5px;
+  height: 108px;
+  padding-bottom: 1px;
+  border-bottom: 1px solid var(--line);
+}
+.week-bar {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 3px;
+  height: 100%;
+}
+.week-bar-n {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sub);
+}
+.week-bar-fill {
+  width: 100%;
+  min-height: 0;
+  border-radius: 2px 2px 0 0;
+  background: color-mix(in srgb, var(--accent) 45%, var(--card));
+}
+.week-bar[data-now] .week-bar-fill {
+  background: var(--gloss), var(--accent);
+}
+.week-bar[data-now] .week-bar-n {
+  color: var(--text);
+}
+.week-bars-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--sub);
+}
+
+/* 筋群ごとのセット数 */
+.group-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.group-bar {
+  display: grid;
+  grid-template-columns: 52px 1fr 64px 34px;
+  align-items: center;
+  gap: 8px;
+}
+.group-bar-name {
+  font-size: 12px;
+  font-weight: 700;
+}
+.group-bar-track {
+  height: 10px;
+  border-radius: 2px;
+  background: var(--soft);
+  overflow: hidden;
+}
+.group-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--gloss), var(--dot-grad, var(--dot));
+}
+.group-bar-n {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+}
+.group-bar-n small,
+.an-pr-value small,
+.chart-readout-value small {
+  margin-left: 2px;
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sub);
+}
+.group-bar-pct {
+  font-size: 11px;
+  color: var(--sub);
+  text-align: right;
+}
+
+/* 種目の推移 */
+.an-trend {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.an-exercise {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--dot) 8%, var(--card));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dot) 25%, transparent);
+  color: var(--text);
+  text-align: left;
+}
+.an-exercise-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.an-exercise-sub {
+  font-size: 11px;
+  color: var(--sub);
+}
+.an-exercise svg {
+  width: 16px;
+  height: 16px;
+  color: var(--sub);
+}
+.an-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.an-metric {
+  flex: none;
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--soft);
+  color: var(--sub);
+  font-size: 12px;
+  font-weight: 700;
+}
+.an-metric[aria-selected="true"] {
+  background: var(--gloss), var(--dot-grad, var(--dot));
+  box-shadow: var(--gloss-line);
+  color: #fff;
+}
+.an-change {
+  margin: 0;
+  font-size: 12px;
+  color: var(--sub);
+}
+.an-change strong {
+  margin-left: 6px;
+  color: var(--text);
+  font-weight: 600;
+}
+.an-change strong[data-up] {
+  color: var(--ok);
+}
+
+/* 折れ線 */
+.line-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.chart-readout {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.chart-readout-value {
+  font-size: 24px;
+  font-weight: 600;
+}
+.chart-readout-date {
+  font-size: 12px;
+  color: var(--sub);
+}
+.chart-open {
+  margin-left: auto;
+  font-size: 12px;
+}
+.chart-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  touch-action: manipulation;
+}
+.chart-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.chart-tick {
+  fill: var(--sub);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+.chart-line {
+  fill: none;
+  stroke: var(--line-color, var(--line));
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.chart-cursor {
+  stroke: var(--sub);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  opacity: .6;
+}
+.chart-dot {
+  fill: var(--card);
+  stroke: var(--line-color, var(--line));
+  stroke-width: 1.6;
+}
+.chart-dot.is-active {
+  fill: var(--line-color, var(--line));
+  stroke: var(--card);
+  stroke-width: 2;
+}
+
+/* 自己ベスト */
+.an-records {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 4px;
+}
+.an-best {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.an-best .stat-value {
+  font-size: 17px;
+}
+.an-pr-list {
+  padding: 4px 0 0;
+}
+.an-pr-value {
+  font-size: 15px;
+  font-weight: 600;
+}
+.an-more {
+  margin: 0;
+  text-align: center;
+}
+
+/* 種目を選ぶ */
+.an-pick {
+  max-height: 55vh;
+  overflow-y: auto;
+  padding: 0;
+}
+.an-pick-row {
+  padding: 0 4px;
+}
+.an-pick-row[aria-current] .list-name {
+  font-weight: 700;
+}
+.an-pick-row[aria-current]::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text);
+}
+.list > li:not(:last-child) > .an-pick-row {
+  border-bottom: 1px solid var(--line);
+}

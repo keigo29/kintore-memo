@@ -62,6 +62,7 @@ src/
     BrandMark.tsx        ロゴの銀色のダンベル
     RestTimer.tsx        休憩タイマーの帯
     SessionReport.tsx    1回分のまとめの表示（数字のタイル・種目ごと・あと何回・計算のしかた）
+    Charts.tsx           分析のグラフ（折れ線・週ごとの棒・筋群ごとの横棒。SVG で描く）
   data/
     types.ts             データの型（種目・メニュー・記録・セット・自己ベスト・設定）
     db.ts                端末の中のデータベース（Dexie / IndexedDB）
@@ -73,6 +74,8 @@ src/
     summary.ts           1回分のまとめ・前回比・自己ベストの判定と保存・計算し直し
     history.ts           履歴の一覧・削除・日時の変更
     templates.ts         トレーニングメニュー（保存・複製・過去の記録から作る・メニューからはじめる）
+    home.ts              ホームの数字（今月と先月・筋群ごとの前回・最近の自己ベスト・直近の履歴）
+    analysis.ts          分析の数字（期間まとめ・週ごとの回数・筋群別セット・種目の推移・自己ベスト）
   lib/
     format.ts            重量・時間・日付の表示の形
     date.ts              日付の計算（その日・その週の始まり）
@@ -95,7 +98,7 @@ src/
     HistoryScreen.tsx    履歴（回数・月のカレンダー・日付ごとの一覧）
     HistoryDetailScreen.tsx  過去の記録の詳細・編集・複製・削除・メニューにする
     TemplateEditScreen.tsx   メニューを作る・直す（種目・セット数・並べかえ）
-    PlaceholderScreens.tsx  分析（今は枠だけ）
+    AnalysisScreen.tsx   分析（期間まとめ・週ごとの回数・筋群別・種目の推移・自己ベスト）
   styles/
     tokens.css           デザインのトークン（色・角丸・影）。色はここだけに書く
     base.css             全体の土台

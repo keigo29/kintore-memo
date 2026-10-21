@@ -12,6 +12,7 @@ import './styles/tokens.css'
 import './styles/base.css'
 import './styles/components.css'
 import './styles/home.css'
+import './styles/analysis.css'
 import App from './App.tsx'
 import { requestPersistentStorage } from './data/db'
 

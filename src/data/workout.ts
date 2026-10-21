@@ -111,21 +111,15 @@ export async function updateSet(id: string, patch: Partial<WorkoutSet>): Promise
 }
 
 /**
- * セットを完了にする。それが最後のセットなら、同じ重量・回数で次のセットを用意する
- * 戻り値：次に入力するセットの id
+ * セットを完了にする（次のセットは勝手に作らない。続けるかどうかは画面で選ぶ）
  */
-export async function completeSet(id: string): Promise<string | null> {
-  return db.transaction('rw', db.sets, async () => {
-    const set = await db.sets.get(id)
-    if (!set) return null
-    await db.sets.update(id, { completedAt: Date.now() })
-    const sets = await getSets(set.workoutExerciseId)
-    const nextOpen = sets.find((s) => s.order > set.order && s.completedAt === null)
-    if (nextOpen) return nextOpen.id
-    const next = newSet(set.workoutExerciseId, set.sessionId, sets.length, set)
-    await db.sets.add(next)
-    return next.id
-  })
+export async function completeSet(id: string): Promise<void> {
+  await db.sets.update(id, { completedAt: Date.now() })
+}
+
+/** 完了を取り消す（まちがえて押したとき用） */
+export async function uncompleteSet(id: string): Promise<void> {
+  await db.sets.update(id, { completedAt: null })
 }
 
 /** セットを1つ足す（最後のセットと同じ値で） */

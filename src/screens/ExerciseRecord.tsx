@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Check, ChevronLeft, ChevronRight, History, Plus, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Dialog } from '../components/Dialog'
 import { NumberStepper } from '../components/NumberStepper'
 import { Switch } from '../components/Switch'
@@ -14,6 +14,7 @@ import {
   getPrevious,
   getSets,
   removeExerciseFromSession,
+  uncompleteSet,
   updateSet,
 } from '../data/workout'
 import { formatKg, formatShortDate } from '../lib/format'
@@ -23,7 +24,9 @@ import { formatKg, formatShortDate } from '../lib/format'
   ・上：前回の記録（これを見ながら入れる）
   ・まんなか：セットの一覧。押すとそのセットを直せる
   ・下：いま入力中のセット（大きな±）と「セット完了」
-  ・入力はすぐ保存。完了すると、同じ重量・回数で次のセットが用意される
+  ・入力はすぐ保存（メモだけは、手を止めたときと欄を離れたときに保存）
+  ・「セット完了」のあとは、次のセットを勝手に作らない。
+    ボタンが「種目を終える」と「次のセット」に変わり、自分で選ぶ
 */
 type Props = {
   workoutExerciseId: string
@@ -92,17 +95,25 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
       return
     }
     const label = labels.get(active.id)
-    const next = await completeSet(active.id)
+    await completeSet(active.id)
     navigator.vibrate?.(15)
-    setActiveId(next)
-    setShowNote(false)
+    // 完了したセットを選んだままにする（次のセットはまだ作らない）
+    setActiveId(active.id)
     flash(label === 'W' ? 'ウォームアップを記録しました' : `${label}セット目を記録しました`)
   }
 
+  // 次のセット：まだ完了していないセットがあればそこへ、なければ同じ重量・回数で1つ足す
   const onNextSet = async () => {
     const open = sets.find((s) => s.completedAt === null)
     setActiveId(open ? open.id : await addSet(we.id, we.sessionId))
     setShowNote(false)
+    setMessage(null)
+  }
+
+  // 種目を終える：次の種目があればそこへ、なければ種目の一覧へ
+  const onFinishExercise = () => {
+    if (nextId) onOpen(nextId)
+    else onBack()
   }
 
   return (
@@ -273,16 +284,17 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
           </div>
 
           {showNote || active.note ? (
-            <input
-              className="input"
-              value={active.note ?? ''}
-              placeholder="このセットのメモ"
-              maxLength={100}
-              onChange={(e) => updateSet(active.id, { note: e.target.value || null })}
-            />
+            // key をセットごとに変えて、セットを切りかえたら入力欄も作り直す
+            <NoteInput key={active.id} value={active.note} onSave={(note) => updateSet(active.id, { note })} />
           ) : (
             <button type="button" className="link-btn" onClick={() => setShowNote(true)}>
               メモを足す
+            </button>
+          )}
+
+          {active.completedAt !== null && (
+            <button type="button" className="link-btn" onClick={() => uncompleteSet(active.id)}>
+              完了を取り消す
             </button>
           )}
 
@@ -311,13 +323,19 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
         {active && active.completedAt === null ? (
           <button type="button" className="btn btn-primary btn-xl btn-block" onClick={onComplete}>
             <Check strokeWidth={2.6} aria-hidden />
-            セット完了
+            {labels.get(active.id) === 'W' ? 'ウォームアップ完了' : `${labels.get(active.id)}セット目を完了`}
           </button>
         ) : (
-          <button type="button" className="btn btn-primary btn-xl btn-block" onClick={onNextSet}>
-            <Plus strokeWidth={2.6} aria-hidden />
-            次のセットへ
-          </button>
+          // 完了したあと：止めるか続けるかを選ぶ
+          <div className="action-pair">
+            <button type="button" className="btn btn-xl" onClick={onFinishExercise}>
+              {nextId ? '次の種目へ' : '種目を終える'}
+            </button>
+            <button type="button" className="btn btn-primary btn-xl" onClick={onNextSet}>
+              <Plus strokeWidth={2.6} aria-hidden />
+              次のセット
+            </button>
+          </div>
         )}
       </div>
 
@@ -350,5 +368,62 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
         </Dialog>
       )}
     </section>
+  )
+}
+
+/*
+  メモの入力欄
+  ・入力中は画面の中だけで持つ（1文字ごとに保存して読み直すと、日本語の変換が壊れるため）
+  ・手を止めて 0.6 秒たったとき、入力欄を離れたとき、画面を閉じるときに保存する
+  ・日本語の変換中は保存しない
+*/
+function NoteInput({ value, onSave }: { value: string | null; onSave: (note: string | null) => void }) {
+  const [text, setText] = useState(value ?? '')
+  const composing = useRef(false)
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const latest = useRef({ text, saved: value ?? '', onSave })
+  latest.current.text = text
+  latest.current.onSave = onSave
+
+  const save = () => {
+    if (timer.current) clearTimeout(timer.current)
+    timer.current = null
+    const { text: t, saved, onSave: fn } = latest.current
+    if (t === saved) return
+    latest.current.saved = t
+    fn(t.trim() === '' ? null : t)
+  }
+
+  const saveLater = () => {
+    if (timer.current) clearTimeout(timer.current)
+    timer.current = setTimeout(save, 600)
+  }
+
+  // 画面を閉じるとき（別のセット・種目へ移るとき）も、入れた分を保存する
+  useEffect(() => () => save(), [])
+
+  return (
+    <input
+      className="input"
+      value={text}
+      placeholder="このセットのメモ"
+      maxLength={100}
+      enterKeyHint="done"
+      onChange={(e) => {
+        setText(e.target.value)
+        if (!composing.current) saveLater()
+      }}
+      onCompositionStart={() => {
+        composing.current = true
+      }}
+      onCompositionEnd={() => {
+        composing.current = false
+        saveLater()
+      }}
+      onBlur={save}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' && !e.nativeEvent.isComposing) e.currentTarget.blur()
+      }}
+    />
   )
 }

@@ -1151,3 +1151,12 @@
   height: 10px;
   border-radius: 2px;
 }
+
+/* 完了したあとの2つのボタン（止める／続ける） */
+.action-pair {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 8px;
+  width: 100%;
+  max-width: 448px;
+}

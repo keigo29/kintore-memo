@@ -17,7 +17,7 @@ import type {
     [a+b] は2つ組み合わせた索引
   ・true/false の項目は IndexedDB で索引にできないので、索引に入れない
 */
-export const db = new Dexie('iron-log') as Dexie & {
+export const db = new Dexie('kintore-memo') as Dexie & {
   exercises: EntityTable<Exercise, 'id'>
   templates: EntityTable<WorkoutTemplate, 'id'>
   sessions: EntityTable<WorkoutSession, 'id'>

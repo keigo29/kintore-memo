@@ -25,7 +25,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      # リポジトリ名をそのまま公開の住所に使う（例：/iron-log/）
+      # リポジトリ名をそのまま公開の住所に使う（例：/kintore-memo/）
       - run: npm run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}/

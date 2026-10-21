@@ -35,7 +35,7 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings }: Props) 
           <span className="logo">
             <Dumbbell strokeWidth={2} aria-hidden />
           </span>
-          <span className="wordmark">Iron Log</span>
+          <span className="wordmark">筋トレメモ</span>
         </div>
         <button type="button" className="icon-btn" aria-label="設定" onClick={onOpenSettings}>
           <Settings strokeWidth={2} />

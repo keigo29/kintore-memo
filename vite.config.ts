@@ -16,8 +16,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Iron Log',
-        short_name: 'Iron Log',
+        name: '筋トレメモ',
+        short_name: '筋トレメモ',
         description: '筋トレの記録と成長の振り返り',
         lang: 'ja',
         start_url: base,

@@ -1,4 +1,4 @@
-# Iron Log
+# 筋トレメモ
 
 筋トレの記録・振り返り・成果画像の共有ができる PWA。
 デザインは「Workstation デザインルール」に合わせています（ライトが基本）。
@@ -19,19 +19,19 @@ npm run preview    # 書き出したものを確認
 
 ## GitHub Pages で公開する
 
-1. GitHub で新しいリポジトリを作る（例：`iron-log`）
+1. GitHub で新しいリポジトリを作る（例：`kintore-memo`）
 2. このフォルダを push する
    ```bash
    git init
    git add .
    git commit -m "first commit"
    git branch -M main
-   git remote add origin https://github.com/ユーザー名/iron-log.git
+   git remote add origin https://github.com/ユーザー名/kintore-memo.git
    git push -u origin main
    ```
 3. リポジトリの **Settings → Pages → Build and deployment → Source** を **GitHub Actions** にする
 4. **Actions** タブで「Deploy to GitHub Pages」が緑になれば公開完了
-   → `https://ユーザー名.github.io/iron-log/`
+   → `https://ユーザー名.github.io/kintore-memo/`
 
 以後は main に push するたびに自動で公開されます（`.github/workflows/deploy.yml`）。
 公開の住所はリポジトリ名から自動で決まるので、別の名前にしても設定の書きかえは不要です。
@@ -89,4 +89,4 @@ public/                  アプリのアイコン
 
 ## データの中身を見る
 
-Chrome の開発者ツール → Application → IndexedDB → iron-log で、保存された中身を確認できます。
+Chrome の開発者ツール → Application → IndexedDB → kintore-memo で、保存された中身を確認できます。

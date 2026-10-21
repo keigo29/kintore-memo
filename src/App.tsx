@@ -176,6 +176,10 @@ export default function App() {
           onOpenSettings={() => toast.show('設定は段階12で作ります')}
           onEditTemplate={(id) => setView({ kind: 'template', id })}
           onStartTemplate={startTemplate}
+          onOpenHistory={(sessionId) => {
+            setHistoryDetail(sessionId ?? null)
+            setTab('history')
+          }}
         />
       )}
       {tab === 'history' && <HistoryScreen onOpen={setHistoryDetail} />}

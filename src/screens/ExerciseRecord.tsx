@@ -2,12 +2,14 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Check, ChevronLeft, ChevronRight, History, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Dialog } from '../components/Dialog'
+import { ExercisePickerDialog } from '../components/ExercisePickerDialog'
 import { NumberStepper } from '../components/NumberStepper'
 import { Switch } from '../components/Switch'
 import { DEFAULT_SETTINGS, db } from '../data/db'
 import { groupColor } from '../data/muscleGroups'
 import type { Rir, WorkoutSet } from '../data/types'
 import {
+  addExerciseToSession,
   addSet,
   completeSet,
   deleteSet,
@@ -43,21 +45,31 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
   const [removing, setRemoving] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [showNote, setShowNote] = useState(false)
+  const [picking, setPicking] = useState(false)
 
   const data = useLiveQuery(async () => {
     const we = await db.workoutExercises.get(workoutExerciseId)
     if (!we) return null
-    const [exercise, sets, previous, settings] = await Promise.all([
+    const [exercise, sets, previous, settings, inSession] = await Promise.all([
       db.exercises.get(we.exerciseId),
       getSets(we.id),
       getPrevious(we.exerciseId, we.sessionId),
       db.settings.get('me'),
+      db.workoutExercises.where('sessionId').equals(we.sessionId).toArray(),
     ])
-    return { we, exercise, sets, previous, step: (settings ?? DEFAULT_SETTINGS).weightStepKg }
+    return {
+      we,
+      exercise,
+      sets,
+      previous,
+      step: (settings ?? DEFAULT_SETTINGS).weightStepKg,
+      // このトレーニングに入っている種目（種目を選ぶときに「追加ずみ」を出すため）
+      addedIds: inSession.map((i) => i.exerciseId),
+    }
   }, [workoutExerciseId])
 
   if (!data || !data.exercise) return null
-  const { we, exercise, sets, previous, step } = data
+  const { we, exercise, sets, previous, step, addedIds } = data
   const bodyweight = exercise.isBodyweight
 
   // いま入力中のセット：選んだもの → まだ完了していない最初のセット → 最後のセット
@@ -126,26 +138,35 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
           <span className="dot" aria-hidden />
           <h1 className="screen-title">{exercise.name}</h1>
         </div>
+        <button type="button" className="icon-btn" aria-label="種目を追加" onClick={() => setPicking(true)}>
+          <Plus strokeWidth={2} />
+        </button>
         <button type="button" className="icon-btn" aria-label="この種目を外す" onClick={() => setRemoving(true)}>
           <Trash2 strokeWidth={2} />
         </button>
       </header>
 
-      {order.length > 1 && (
-        <nav className="record-nav" aria-label="前後の種目">
-          <button type="button" className="btn" disabled={!prevId} onClick={() => prevId && onOpen(prevId)}>
-            <ChevronLeft strokeWidth={2} aria-hidden />
-            前の種目
-          </button>
-          <span className="num record-pos">
-            {pos + 1} / {order.length}
-          </span>
-          <button type="button" className="btn" disabled={!nextId} onClick={() => nextId && onOpen(nextId)}>
+      {/* 前後の種目。最後の種目では、右が「種目を追加」になる */}
+      <nav className="record-nav" aria-label="前後の種目">
+        <button type="button" className="btn" disabled={!prevId} onClick={() => prevId && onOpen(prevId)}>
+          <ChevronLeft strokeWidth={2} aria-hidden />
+          前の種目
+        </button>
+        <span className="num record-pos">
+          {pos + 1} / {order.length}
+        </span>
+        {nextId ? (
+          <button type="button" className="btn" onClick={() => onOpen(nextId)}>
             次の種目
             <ChevronRight strokeWidth={2} aria-hidden />
           </button>
-        </nav>
-      )}
+        ) : (
+          <button type="button" className="btn" onClick={() => setPicking(true)}>
+            <Plus strokeWidth={2} aria-hidden />
+            種目を追加
+          </button>
+        )}
+      </nav>
 
       {/* 前回の記録 */}
       <div className="card prev-card">
@@ -338,6 +359,19 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
           </div>
         )}
       </div>
+
+      {picking && (
+        <ExercisePickerDialog
+          addedIds={addedIds}
+          onClose={() => setPicking(false)}
+          onPick={async (exerciseId) => {
+            const id = await addExerciseToSession(we.sessionId, exerciseId)
+            setPicking(false)
+            // 追加した種目の記録画面へそのまま移る
+            onOpen(id)
+          }}
+        />
+      )}
 
       {removing && (
         <Dialog

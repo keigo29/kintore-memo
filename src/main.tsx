@@ -15,9 +15,13 @@ import './styles/home.css'
 import './styles/analysis.css'
 import App from './App.tsx'
 import { requestPersistentStorage } from './data/db'
+import { installViewportFix } from './lib/viewportFix'
 
 // 保存したデータが勝手に消されにくくする（結果を待たずに画面を出す）
 void requestPersistentStorage()
+
+// iPhone で、下のタブやボタンの帯が上に取り残されるのを直す
+installViewportFix()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -5,6 +5,8 @@
 
 ## 動かし方
 
+Node.js は **24（LTS）** を使います（`.nvmrc` に書いてあります。22.12 以上なら動きます）。nvm を使っているなら `nvm use` で合わせられます。
+
 ```bash
 npm install
 npm run dev        # http://localhost:5173 で開く

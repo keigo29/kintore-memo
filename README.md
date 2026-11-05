@@ -84,6 +84,7 @@ src/
     backupFormat.ts      バックアップファイル（JSON）の形と、読み込む前の確認
     backupFormat.test.ts backupFormat.ts のテスト（npm test）
     backup.ts            書き出し・読み込み（置き換え）・全て削除
+    goals.ts             重量の達成目標（例：ベンチプレス 100kg）。スキルツリーの最終スキルになる
     skills.ts            スキルツリーの決まり（筋群6系統×6スキル）と、記録からの解放の計算
     skills.test.ts       skills.ts のテスト
     charge.test.ts       今週のチャージ（週の目標・連続週）のテスト

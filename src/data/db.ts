@@ -53,6 +53,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   voltColor: 'cyan',
   weeklyGoal: 3,
   skillSeen: [],
+  goals: {},
   shareDefaults: {
     muscleGroups: true,
     exerciseCount: true,

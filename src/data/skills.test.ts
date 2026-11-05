@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { computeSkills, skillDefs, unseenSkills } from './skills'
-import type { SkillSession } from './skills'
+import type { Goals, SkillSession } from './skills'
 
 const day = 86400000
 const T0 = new Date(2026, 0, 5, 19).getTime()
@@ -50,5 +50,41 @@ describe('スキルツリー', () => {
   it('まだ見ていない解放済みのスキルを古い順に返す', () => {
     const t = computeSkills([chest(0, 10), chest(1, 10), chest(2, 10)], [])
     expect(unseenSkills(t, ['chest1']).map((s) => s.def.id)).toEqual(['chest2a'])
+  })
+})
+
+describe('重量の達成目標（最終スキル）', () => {
+  const goals: Goals = new Map([['chest', { group: 'chest', exerciseId: 'bench', exerciseName: 'ベンチプレス', targetKg: 100 }]])
+  // 胸の 1〜3段目を全部解放できるだけの記録（10セット×30日、自己ベスト5回）
+  const base = Array.from({ length: 30 }, (_, i) => ({ ...chest(i, 10), best: { bench: 80 } }))
+  const prs = Array.from({ length: 5 }, (_, i) => ({ sessionId: `s${i}`, group: 'chest' as const }))
+
+  it('胸の最終スキルは「ベンチプレス 100kg」になる', () => {
+    const d = skillDefs(goals).find((x) => x.id === 'chest4')!
+    expect(d.metric).toBe('goal')
+    expect(d.name).toBe('ベンチプレス 100kg')
+  })
+
+  it('目標の重量に届いた回で解放される', () => {
+    const list = [...base, { ...chest(31, 3), best: { bench: 100 } }]
+    const t = computeSkills(list, prs, goals)
+    expect(t.skills.get('chest4')!.unlockedAt).toBe(T0 + 31 * day)
+    expect(t.skills.get('chest4')!.value).toBe(100)
+  })
+
+  it('届かなければ解放されず、いまの最高重量が value に入る', () => {
+    const t = computeSkills(base, prs, goals)
+    expect(t.skills.get('chest4')!.unlockedAt).toBeNull()
+    expect(t.skills.get('chest4')!.value).toBe(80)
+  })
+
+  it('先に重量に届いていても、前のスキルが揃った回まで解放されない', () => {
+    const early = [{ ...chest(0, 1), best: { bench: 100 } }, ...base.slice(1)]
+    const t = computeSkills(early, prs, goals)
+    expect(t.skills.get('chest4')!.unlockedAt).toBe(t.skills.get('chest3b')!.unlockedAt! >= t.skills.get('chest3a')!.unlockedAt! ? t.skills.get('chest3b')!.unlockedAt : t.skills.get('chest3a')!.unlockedAt)
+  })
+
+  it('体幹の最終スキルは、セット数のまま', () => {
+    expect(skillDefs(goals).find((x) => x.id === 'core4')!.metric).toBe('sets')
   })
 })

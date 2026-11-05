@@ -109,6 +109,9 @@ export type ShareDefaults = {
 }
 
 /** 設定（1件だけ。id は 'me'） */
+/** 重量の達成目標：この種目で、この重量を挙げる */
+export type WeightGoal = { exerciseId: string; targetKg: number }
+
 export type VoltColor = 'cyan' | 'yellow' | 'white'
 
 export type UserSettings = {
@@ -130,6 +133,8 @@ export type UserSettings = {
   weeklyGoal: number
   /** もう見た（お知らせ済みの）スキルの id */
   skillSeen: string[]
+  /** 筋群ごとの重量の達成目標（スキルツリーの最終スキル）。入っていない筋群は、最初の目標を使う */
+  goals: Partial<Record<MuscleGroup, WeightGoal>>
   shareDefaults: ShareDefaults
   shareMessage: string
 }

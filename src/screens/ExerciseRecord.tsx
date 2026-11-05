@@ -6,7 +6,9 @@ import { ExercisePickerDialog } from '../components/ExercisePickerDialog'
 import { NumberStepper } from '../components/NumberStepper'
 import { RestTimer } from '../components/RestTimer'
 import { Switch } from '../components/Switch'
-import { BoltIcon, EdgeZap } from '../components/Volt'
+import { ArcRun, BoltIcon, EdgeZap } from '../components/Volt'
+import { goalReachedBy } from '../data/goals'
+import type { ResolvedGoal } from '../data/goals'
 import { DEFAULT_SETTINGS, db } from '../data/db'
 import { groupColor } from '../data/muscleGroups'
 import type { Rir, WorkoutSet } from '../data/types'
@@ -51,6 +53,8 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
   const [picking, setPicking] = useState(false)
   // セット完了の稲妻：完了するたびに1増やし、key にして演出を作り直す
   const [zap, setZap] = useState(0)
+  // 重量の達成目標に、このセットで初めて届いたとき
+  const [goalHit, setGoalHit] = useState<{ goal: ResolvedGoal; key: number } | null>(null)
 
   const data = useLiveQuery(async () => {
     const we = await db.workoutExercises.get(workoutExerciseId)
@@ -118,6 +122,13 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
     await completeSet(active.id)
     navigator.vibrate?.(15)
     setZap((z) => z + 1)
+    const goal = await goalReachedBy(active.id)
+    if (goal) {
+      navigator.vibrate?.([30, 60, 30, 60, 80])
+      const key = Date.now()
+      setGoalHit({ goal, key })
+      setTimeout(() => setGoalHit((g) => (g?.key === key ? null : g)), 5000)
+    }
     // 休憩タイマーを自動でスタート（ウォームアップのあとも休憩する）。設定で切れる
     if (restAuto) restTimer.start(restSeconds)
     // 完了したセットを選んだままにする（次のセットはまだ作らない）
@@ -352,6 +363,21 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
           <div className="action-message" role="status">
             {message}
           </div>
+        )}
+        {goalHit && (
+          // 目標達成：大きなお知らせ。押すと閉じる（5秒で自動で消える）
+          <button type="button" className="goal-hit" key={goalHit.key} onClick={() => setGoalHit(null)}>
+            <ArcRun />
+            <span className="goal-hit-icon">
+              <BoltIcon />
+            </span>
+            <span className="goal-hit-text">
+              <b>目標達成！</b>
+              <span className="num">
+                {goalHit.goal.exerciseName} {goalHit.goal.targetKg}kg
+              </span>
+            </span>
+          </button>
         )}
         {/* 稲妻：完了した瞬間に、ボタンの縁を電気が一周して「+1」が出る */}
         <div className="zap-host">

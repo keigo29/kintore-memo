@@ -221,3 +221,68 @@
 .seg-btn:disabled {
   opacity: 0.45;
 }
+
+/* ---------- 重量の目標達成（記録の画面） ---------- */
+.goal-hit {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 3px;
+  background: var(--gloss), var(--accent);
+  color: #fff;
+  text-align: left;
+  animation: goal-in 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+:root[data-theme="dark"] .goal-hit {
+  background: var(--gloss), #2c2d31;
+}
+.goal-hit .arc-run polyline {
+  stroke: var(--volt);
+}
+.goal-hit-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .08);
+  color: var(--volt);
+  animation: goal-glow 1s ease-in-out 3;
+}
+.goal-hit-icon svg {
+  width: 22px;
+  height: 22px;
+  filter: drop-shadow(0 0 6px var(--volt-glow));
+}
+.goal-hit-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.goal-hit-text b {
+  font-size: 16px;
+}
+.goal-hit-text span {
+  font-size: 13px;
+  color: rgba(255, 255, 255, .75);
+}
+@keyframes goal-in {
+  0% { opacity: 0; transform: translateY(10px) scale(.96); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes goal-glow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--volt-glow); }
+  50% { box-shadow: 0 0 0 8px rgba(0, 0, 0, 0), 0 0 18px var(--volt-glow); }
+}
+:root[data-effects="off"] .goal-hit,
+:root[data-effects="off"] .goal-hit-icon {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .goal-hit, .goal-hit-icon { animation: none; }
+}

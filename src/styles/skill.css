@@ -11,7 +11,7 @@
 
 .st-card {
   position: relative;
-  padding: 18px 10px 18px;
+  padding: 16px 6px 18px;
   border-radius: var(--r-card);
   background:
     radial-gradient(120% 80% at 50% 100%, rgba(255, 255, 255, .07), rgba(255, 255, 255, 0) 60%),
@@ -22,15 +22,19 @@
 .st-box {
   position: relative;
   width: 100%;
-  aspect-ratio: 1000 / 540;
+  aspect-ratio: 1000 / 1506;
+  /* 丸の大きさを、ツリーの幅に合わせて変える（幅 346px で 30px。小さい画面でも重ならない） */
+  container-type: inline-size;
 }
 .st-watermark {
   position: absolute;
   left: 0;
   right: 0;
-  top: 34%;
+  top: 44%;
   font-family: var(--font-mono);
   font-size: clamp(30px, 11vw, 52px);
+  line-height: 1.1;
+  white-space: pre-line;
   font-weight: 600;
   letter-spacing: .12em;
   text-align: center;
@@ -73,8 +77,8 @@
   position: absolute;
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: 8.67cqw;
+  height: 8.67cqw;
   padding: 0;
   border: 1.5px solid #3a3e49;
   border-radius: 50%;
@@ -84,16 +88,16 @@
   transition: transform .2s, box-shadow .2s;
 }
 .st-node svg {
-  width: 12px;
-  height: 12px;
+  width: 4.3cqw;
+  height: 4.3cqw;
 }
 .st-node.is-cap {
-  width: 34px;
-  height: 34px;
+  width: 10.4cqw;
+  height: 10.4cqw;
 }
 .st-node.is-cap svg {
-  width: 16px;
-  height: 16px;
+  width: 5.2cqw;
+  height: 5.2cqw;
 }
 /* 挑戦中：まわりの輪が、進み具合だけ満ちる */
 .st-node.is-active {
@@ -131,16 +135,16 @@
   100% { transform: translate(-50%, -50%) scale(1); }
 }
 .st-root {
-  width: 42px;
-  height: 42px;
+  width: 12.1cqw;
+  height: 12.1cqw;
   border: 0;
   background: #ece8df;
   color: #16181e;
   box-shadow: 0 0 0 3px #0c0d11, 0 0 0 4.5px #ece8df;
 }
 .st-root svg {
-  width: 20px;
-  height: 20px;
+  width: 6cqw;
+  height: 6cqw;
 }
 
 /* 進み具合 */
@@ -400,4 +404,8 @@
 }
 :root[data-effects="off"] .st-bolts {
   display: none;
+}
+.st-goal-edit {
+  align-self: flex-start;
+  margin-top: 4px;
 }

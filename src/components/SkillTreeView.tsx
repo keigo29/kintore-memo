@@ -1,7 +1,7 @@
 import { CalendarCheck, Crown, Dumbbell, Flame, Footprints, Layers, Trophy } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useMemo, useRef } from 'react'
-import { BRANCHES, LEVEL, SLOTS } from '../data/skills'
+import { BRANCHES, SLOTS } from '../data/skills'
 import type { SkillDef, SkillState, SkillTree } from '../data/skills'
 import { effectsOn, jag } from '../lib/effects'
 import type { Pt } from '../lib/effects'
@@ -9,7 +9,9 @@ import type { Pt } from '../lib/effects'
 /*
   スキルツリーの絵（扇の形）
   ・まん中の下が根っこ。左から 胸・肩・腕・背中・下半身・体幹 の6系統が扇に広がる
-  ・座標は 1000×540 の箱で決めて、画面の幅に合わせて縮める（縦横の比は変えない）
+  ・座標は 1000×1506 の箱で決めて、画面の幅に合わせて縮める（縦横の比は変えない）
+  ・スマホの縦長の画面に合わせて、扇を縦に引き伸ばしている（横 0.95 倍・縦 3 倍の楕円）
+    丸の大きさは幅に比例（skill.css の cqw）。重ならないように、段ごとの半径と角度のずらしを計算して決めた
   ・線：未解放は暗い灰色、挑戦中は筋群の色をうすく、解放済みは筋群の色
   ・電気（canvas）：
       - ふだん：解放済みの線の上を、ときどき小さな電気が走る。解放済みのスキルのまわりで火花が散る
@@ -18,11 +20,20 @@ import type { Pt } from '../lib/effects'
 */
 
 export const TREE_W = 1000
-export const TREE_H = 540
+export const TREE_H = 1506
 const CX = 500
-const CY = 500
-const RADII = [0, 165, 280, 380, 470]
-const OFFSET: Record<string, number> = { '1': 0, '2a': 7.5, '2b': -7.5, '3a': 9, '3b': -9, '4': 0 }
+const CY = 1470
+const KX = 0.95
+const KY = 3
+/** スキルごとの、根っこからの距離と、系統の向きからずらす角度 */
+const PLACE: Record<string, [number, number]> = {
+  '1': [190, 0],
+  '2a': [280, 7],
+  '2b': [330, -7],
+  '3a': [380, 10],
+  '3b': [440, -10],
+  '4': [480, 0],
+}
 
 const ICONS: Record<SkillDef['icon'], LucideIcon> = {
   footprints: Footprints,
@@ -34,14 +45,17 @@ const ICONS: Record<SkillDef['icon'], LucideIcon> = {
   crown: Crown,
 }
 
-const pt = (r: number, deg: number): Pt => ({ x: CX + r * Math.cos((deg * Math.PI) / 180), y: CY - r * Math.sin((deg * Math.PI) / 180) })
+const pt = (r: number, deg: number): Pt => ({
+  x: CX + r * KX * Math.cos((deg * Math.PI) / 180),
+  y: CY - r * KY * Math.sin((deg * Math.PI) / 180),
+})
 
-/** 各スキルの位置（扇の角度は 165° → 15°） */
+/** 各スキルの位置（扇の角度は 162° → 18°） */
 export function layout(): Map<string, Pt> {
   const m = new Map<string, Pt>([['root', { x: CX, y: CY }]])
   BRANCHES.forEach((b, i) => {
-    const ang = 165 - i * 30
-    for (const s of SLOTS) m.set(b.group + s, pt(RADII[LEVEL[s]], ang + OFFSET[s]))
+    const ang = 162 - i * 28.8
+    for (const s of SLOTS) m.set(b.group + s, pt(PLACE[s][0], ang + PLACE[s][1]))
   })
   return m
 }
@@ -117,7 +131,8 @@ export function SkillTreeView({ tree, selected, onSelect, fresh, onPlayed }: Pro
       const l = Math.hypot(dx, dy) || 1
       return [{ x: a.x + (dx / l) * ra, y: a.y + (dy / l) * ra }, { x: b.x - (dx / l) * rb, y: b.y - (dy / l) * rb }]
     }
-    const radius = (id: string) => (id === 'root' ? 22 : id.endsWith('4') ? 17 : 12) * (w / 358)
+    // 丸の半径（CSS の cqw と同じ割合）
+    const radius = (id: string) => (id === 'root' ? 0.0605 : id.endsWith('4') ? 0.052 : 0.0434) * w
 
     type Bolt = { paths: Pt[][]; born: number; life: number; width: number; tint: string }
     let bolts: Bolt[] = []
@@ -250,16 +265,16 @@ export function SkillTreeView({ tree, selected, onSelect, fresh, onPlayed }: Pro
   return (
     <div className="st-box" ref={boxRef}>
       <div className="st-watermark" aria-hidden>
-        SKILL TREE
+        {"SKILL\nTREE"}
       </div>
       <svg className="st-edges" viewBox={`0 0 ${TREE_W} ${TREE_H}`} preserveAspectRatio="none" aria-hidden>
-        {[165, 280, 380, 470].map((r, i) => {
+        {[190, 305, 410, 480].map((r, i) => {
           const a = pt(r, 180)
           const b = pt(r, 0)
           return (
             <path
               key={r}
-              d={`M${a.x} ${a.y} A${r} ${r} 0 0 1 ${b.x} ${b.y}`}
+              d={`M${a.x} ${a.y} A${r * KX} ${r * KY} 0 0 1 ${b.x} ${b.y}`}
               className="st-ring"
               strokeDasharray={i % 2 ? '2 8' : undefined}
             />

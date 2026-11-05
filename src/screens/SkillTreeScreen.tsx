@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Target, Zap } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { Maximize2, Minimize2, Target, Zap } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Dialog } from '../components/Dialog'
 import { MuscleIcon } from '../components/MuscleIcon'
 import { NumberStepper } from '../components/NumberStepper'
@@ -29,6 +29,14 @@ export function SkillTreeScreen() {
   const settings = useLiveQuery(() => getSettings(), [])
   const [selected, setSelected] = useState<string | null>(null)
   const [editing, setEditing] = useState<SkillState | null>(null)
+  // 拡大：ツリーを画面の1.7倍の幅にして、左右にスクロールで見る
+  const [zoom, setZoom] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    // 拡大したら、まん中（根っこ）が見えるところへ
+    const el = scrollRef.current
+    if (el) el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2
+  }, [zoom])
   // 開いたときに一度だけ決める「新しく解放したスキル」
   const [fresh, setFresh] = useState<SkillState[] | null>(null)
 
@@ -81,13 +89,22 @@ export function SkillTreeScreen() {
       )}
 
       <div className="st-card">
-        <SkillTreeView
-          tree={tree}
-          selected={selected}
-          onSelect={setSelected}
-          fresh={freshIds}
-          onPlayed={() => {}}
-        />
+        <button type="button" className="st-zoom" aria-pressed={zoom} onClick={() => setZoom((z) => !z)}>
+          {zoom ? <Minimize2 strokeWidth={2} aria-hidden /> : <Maximize2 strokeWidth={2} aria-hidden />}
+          {zoom ? '全体' : '拡大'}
+        </button>
+        <div className={zoom ? 'st-scroll is-zoom' : 'st-scroll'} ref={scrollRef}>
+          <div className="st-scroll-inner">
+            <SkillTreeView
+              tree={tree}
+              selected={selected}
+              onSelect={setSelected}
+              fresh={freshIds}
+              onPlayed={() => {}}
+              labels={zoom}
+            />
+          </div>
+        </div>
         <div className="st-progress">
           <span className="st-pct num">
             {pct}

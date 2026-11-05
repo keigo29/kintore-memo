@@ -11,7 +11,7 @@
 
 .st-card {
   position: relative;
-  padding: 16px 6px 18px;
+  padding: 44px 0 18px;
   border-radius: var(--r-card);
   background:
     radial-gradient(120% 80% at 50% 100%, rgba(255, 255, 255, .07), rgba(255, 255, 255, 0) 60%),
@@ -19,22 +19,85 @@
   color: #ece8df;
   overflow: hidden;
 }
+/* 拡大：箱を1.7倍の幅にして、左右にスクロール */
+.st-scroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.st-scroll::-webkit-scrollbar {
+  display: none;
+}
+.st-scroll-inner {
+  width: 100%;
+  padding: 0 4px;
+}
+.st-scroll.is-zoom .st-scroll-inner {
+  width: 170%;
+  padding: 0 12px;
+}
+.st-zoom {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, .06);
+  color: #ece8df;
+  font-size: 12px;
+  font-weight: 700;
+}
+.st-zoom svg {
+  width: 13px;
+  height: 13px;
+}
+/* 系統の名前（拡大したときだけ） */
+.st-label {
+  position: absolute;
+  line-height: 1.25;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.st-label b {
+  display: block;
+  font-size: 13px;
+  letter-spacing: .14em;
+}
+.st-label span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: .3em;
+  color: #7c818b;
+}
+.st-label small {
+  display: block;
+  margin-top: 1px;
+  font-size: 10px;
+  color: var(--volt);
+}
+
 .st-box {
   position: relative;
   width: 100%;
-  aspect-ratio: 1000 / 1506;
-  /* 丸の大きさを、ツリーの幅に合わせて変える（幅 346px で 30px。小さい画面でも重ならない） */
+  aspect-ratio: 1000 / 590;
+  /* 丸の大きさを、ツリーの幅に合わせて変える（拡大すると丸も大きくなる。どの幅でも重ならない） */
   container-type: inline-size;
 }
 .st-watermark {
   position: absolute;
   left: 0;
   right: 0;
-  top: 44%;
+  top: 33%;
   font-family: var(--font-mono);
-  font-size: clamp(30px, 11vw, 52px);
-  line-height: 1.1;
-  white-space: pre-line;
+  font-size: 9cqw;
+  line-height: 1;
   font-weight: 600;
   letter-spacing: .12em;
   text-align: center;
@@ -77,8 +140,8 @@
   position: absolute;
   display: grid;
   place-items: center;
-  width: 8.67cqw;
-  height: 8.67cqw;
+  width: 6.6cqw;
+  height: 6.6cqw;
   padding: 0;
   border: 1.5px solid #3a3e49;
   border-radius: 50%;
@@ -88,16 +151,16 @@
   transition: transform .2s, box-shadow .2s;
 }
 .st-node svg {
-  width: 4.3cqw;
-  height: 4.3cqw;
+  width: 3.3cqw;
+  height: 3.3cqw;
 }
 .st-node.is-cap {
-  width: 10.4cqw;
-  height: 10.4cqw;
+  width: 9cqw;
+  height: 9cqw;
 }
 .st-node.is-cap svg {
-  width: 5.2cqw;
-  height: 5.2cqw;
+  width: 4.4cqw;
+  height: 4.4cqw;
 }
 /* 挑戦中：まわりの輪が、進み具合だけ満ちる */
 .st-node.is-active {
@@ -135,20 +198,21 @@
   100% { transform: translate(-50%, -50%) scale(1); }
 }
 .st-root {
-  width: 12.1cqw;
-  height: 12.1cqw;
+  width: 11cqw;
+  height: 11cqw;
   border: 0;
   background: #ece8df;
   color: #16181e;
   box-shadow: 0 0 0 3px #0c0d11, 0 0 0 4.5px #ece8df;
 }
 .st-root svg {
-  width: 6cqw;
-  height: 6cqw;
+  width: 5.4cqw;
+  height: 5.4cqw;
 }
 
 /* 進み具合 */
 .st-progress {
+  padding: 0 14px;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -9,9 +9,9 @@ import type { Pt } from '../lib/effects'
 /*
   スキルツリーの絵（扇の形）
   ・まん中の下が根っこ。左から 胸・肩・腕・背中・下半身・体幹 の6系統が扇に広がる
-  ・座標は 1000×1506 の箱で決めて、画面の幅に合わせて縮める（縦横の比は変えない）
-  ・スマホの縦長の画面に合わせて、扇を縦に引き伸ばしている（横 0.95 倍・縦 3 倍の楕円）
-    丸の大きさは幅に比例（skill.css の cqw）。重ならないように、段ごとの半径と角度のずらしを計算して決めた
+  ・座標は 1000×590 の箱で決めて、画面の幅に合わせて縮める（縦横の比は変えない）
+  ・丸の大きさも幅に比例する（skill.css の cqw）。重ならない大きさを計算して決めた
+  ・zoom のとき：箱を画面の 1.7 倍の幅にして、左右にスクロールで見る。系統の名前も出す
   ・線：未解放は暗い灰色、挑戦中は筋群の色をうすく、解放済みは筋群の色
   ・電気（canvas）：
       - ふだん：解放済みの線の上を、ときどき小さな電気が走る。解放済みのスキルのまわりで火花が散る
@@ -20,19 +20,17 @@ import type { Pt } from '../lib/effects'
 */
 
 export const TREE_W = 1000
-export const TREE_H = 1506
+export const TREE_H = 590
 const CX = 500
-const CY = 1470
-const KX = 0.95
-const KY = 3
+const CY = 510
 /** スキルごとの、根っこからの距離と、系統の向きからずらす角度 */
 const PLACE: Record<string, [number, number]> = {
-  '1': [190, 0],
-  '2a': [280, 7],
-  '2b': [330, -7],
-  '3a': [380, 10],
-  '3b': [440, -10],
-  '4': [480, 0],
+  '1': [165, 0],
+  '2a': [280, 7.5],
+  '2b': [280, -7.5],
+  '3a': [380, 9],
+  '3b': [380, -9],
+  '4': [470, 0],
 }
 
 const ICONS: Record<SkillDef['icon'], LucideIcon> = {
@@ -46,15 +44,15 @@ const ICONS: Record<SkillDef['icon'], LucideIcon> = {
 }
 
 const pt = (r: number, deg: number): Pt => ({
-  x: CX + r * KX * Math.cos((deg * Math.PI) / 180),
-  y: CY - r * KY * Math.sin((deg * Math.PI) / 180),
+  x: CX + r * Math.cos((deg * Math.PI) / 180),
+  y: CY - r * Math.sin((deg * Math.PI) / 180),
 })
 
-/** 各スキルの位置（扇の角度は 162° → 18°） */
+/** 各スキルの位置（扇の角度は 165° → 15°） */
 export function layout(): Map<string, Pt> {
   const m = new Map<string, Pt>([['root', { x: CX, y: CY }]])
   BRANCHES.forEach((b, i) => {
-    const ang = 162 - i * 28.8
+    const ang = 165 - i * 30
     for (const s of SLOTS) m.set(b.group + s, pt(PLACE[s][0], ang + PLACE[s][1]))
   })
   return m
@@ -67,9 +65,11 @@ type Props = {
   /** 新しく解放したスキル（電気が流れ込む演出をする）。終わったら onPlayed */
   fresh: string[]
   onPlayed: () => void
+  /** 系統の名前を出すか（拡大しているときだけ。縮めた表示では文字が小さすぎるので出さない） */
+  labels?: boolean
 }
 
-export function SkillTreeView({ tree, selected, onSelect, fresh, onPlayed }: Props) {
+export function SkillTreeView({ tree, selected, onSelect, fresh, onPlayed, labels = false }: Props) {
   const pos = useMemo(layout, [])
   const boxRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -132,7 +132,7 @@ export function SkillTreeView({ tree, selected, onSelect, fresh, onPlayed }: Pro
       return [{ x: a.x + (dx / l) * ra, y: a.y + (dy / l) * ra }, { x: b.x - (dx / l) * rb, y: b.y - (dy / l) * rb }]
     }
     // 丸の半径（CSS の cqw と同じ割合）
-    const radius = (id: string) => (id === 'root' ? 0.0605 : id.endsWith('4') ? 0.052 : 0.0434) * w
+    const radius = (id: string) => (id === 'root' ? 0.055 : id.endsWith('4') ? 0.045 : 0.033) * w
 
     type Bolt = { paths: Pt[][]; born: number; life: number; width: number; tint: string }
     let bolts: Bolt[] = []
@@ -265,16 +265,16 @@ export function SkillTreeView({ tree, selected, onSelect, fresh, onPlayed }: Pro
   return (
     <div className="st-box" ref={boxRef}>
       <div className="st-watermark" aria-hidden>
-        {"SKILL\nTREE"}
+        SKILL TREE
       </div>
       <svg className="st-edges" viewBox={`0 0 ${TREE_W} ${TREE_H}`} preserveAspectRatio="none" aria-hidden>
-        {[190, 305, 410, 480].map((r, i) => {
+        {[165, 280, 380, 470].map((r, i) => {
           const a = pt(r, 180)
           const b = pt(r, 0)
           return (
             <path
               key={r}
-              d={`M${a.x} ${a.y} A${r * KX} ${r * KY} 0 0 1 ${b.x} ${b.y}`}
+              d={`M${a.x} ${a.y} A${r} ${r} 0 0 1 ${b.x} ${b.y}`}
               className="st-ring"
               strokeDasharray={i % 2 ? '2 8' : undefined}
             />
@@ -297,6 +297,30 @@ export function SkillTreeView({ tree, selected, onSelect, fresh, onPlayed }: Pro
         })}
       </svg>
       <canvas className="st-bolts" ref={canvasRef} aria-hidden />
+      {labels &&
+        BRANCHES.map((b, i) => {
+          const p = pos.get(b.group + '4')!
+          const ang = 165 - i * 30
+          const done = SLOTS.filter((sl) => tree.skills.get(b.group + sl)?.unlockedAt != null).length
+          const x = (p.x / TREE_W) * 100
+          const y = (p.y / TREE_H) * 100
+          // 端の2つは丸の下に、それ以外は丸の外側（左の系統は左、右の系統は右）に出す
+          const style: React.CSSProperties =
+            ang >= 150
+              ? { left: '1%', top: `${y + 9}%` }
+              : ang <= 30
+                ? { right: '1%', top: `${y + 9}%`, textAlign: 'right' }
+                : ang > 90
+                  ? { right: `${100 - x + 6}%`, top: `${y}%`, transform: 'translateY(-50%)', textAlign: 'right' }
+                  : { left: `${x + 6}%`, top: `${y}%`, transform: 'translateY(-50%)' }
+          return (
+            <div key={b.group} className="st-label" style={style} aria-hidden>
+              <b>{b.name}</b>
+              <span>{b.en}</span>
+              <small className="num">{done} / 6</small>
+            </div>
+          )
+        })}
       <span className="st-node st-root" style={{ left: `${(CX / TREE_W) * 100}%`, top: `${(CY / TREE_H) * 100}%` }} aria-hidden>
         <Dumbbell strokeWidth={2} />
       </span>

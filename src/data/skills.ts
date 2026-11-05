@@ -45,16 +45,19 @@ const SCALE: Record<string, number> = { chest: 1, back: 1, legs: 1, shoulders: 0
 const roundNice = (n: number) => (n < 10 ? Math.max(1, Math.round(n)) : Math.round(n / 5) * 5)
 
 /**
- * スキルのアイコン：系統ごとに変えて、36個がなるべく重ならないようにする
- * 段の意味はそろえる（1：始まり、2a：積み上げ、2b：習慣・時間、3a：鍛錬、3b：突破、4：頂点）
+ * スキルのアイコン：スキルの中身に合わせる（同じ段は、どの系統でも同じでよい）
+ *   1  始めの一歩 → 足あと　2a 積み上げ → 重なった層　2b 習慣 → カレンダー
+ *   3a 鍛錬 → ダンベル　3b 突破（自己ベスト） → トロフィー／継続（体幹） → 炎
+ *   4  重量の達成目標 → 的（腕だけ力こぶ）／体幹の極み → 王冠
  */
+const BASE_ICONS = { '1': 'Footprints', '2a': 'Layers', '2b': 'CalendarCheck', '3a': 'Dumbbell', '3b': 'Trophy', '4': 'Target' } as const
 const ICON_TABLE = {
-  chest: { '1': 'Footprints', '2a': 'Layers', '2b': 'CalendarCheck', '3a': 'Shield', '3b': 'Trophy', '4': 'Crown' },
-  shoulders: { '1': 'Sunrise', '2a': 'ChartColumnIncreasing', '2b': 'Clock', '3a': 'Swords', '3b': 'Medal', '4': 'Star' },
-  arms: { '1': 'Hand', '2a': 'Blocks', '2b': 'Repeat', '3a': 'Hammer', '3b': 'Award', '4': 'BicepsFlexed' },
-  back: { '1': 'Sprout', '2a': 'Boxes', '2b': 'CalendarDays', '3a': 'Anchor', '3b': 'Rocket', '4': 'MountainSnow' },
-  legs: { '1': 'PersonStanding', '2a': 'TrendingUp', '2b': 'Timer', '3a': 'Pickaxe', '3b': 'Gauge', '4': 'Flag' },
-  core: { '1': 'Target', '2a': 'Database', '2b': 'Hourglass', '3a': 'Gem', '3b': 'Flame', '4': 'Sun' },
+  chest: BASE_ICONS,
+  shoulders: BASE_ICONS,
+  arms: { ...BASE_ICONS, '4': 'BicepsFlexed' },
+  back: BASE_ICONS,
+  legs: BASE_ICONS,
+  core: { ...BASE_ICONS, '3b': 'Flame', '4': 'Crown' },
 } as const
 
 export type SkillIcon = (typeof ICON_TABLE)[keyof typeof ICON_TABLE][SkillSlot]

@@ -1,0 +1,403 @@
+/* スキルツリー（参考：keigo29/skill-tree の扇の形）
+   ツリーの箱は、ライト／ダークどちらでも暗い色にする（電気と光が見えるように） */
+
+.st-count {
+  padding: 5px 10px;
+  border-radius: var(--r-pill);
+  background: var(--card);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.st-card {
+  position: relative;
+  padding: 18px 10px 18px;
+  border-radius: var(--r-card);
+  background:
+    radial-gradient(120% 80% at 50% 100%, rgba(255, 255, 255, .07), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, #16181e 0%, #0c0d11 100%);
+  color: #ece8df;
+  overflow: hidden;
+}
+.st-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1000 / 540;
+}
+.st-watermark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 34%;
+  font-family: var(--font-mono);
+  font-size: clamp(30px, 11vw, 52px);
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-align: center;
+  color: rgba(255, 255, 255, .035);
+  pointer-events: none;
+}
+.st-edges,
+.st-bolts {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.st-ring {
+  fill: none;
+  stroke: #fff;
+  stroke-opacity: .05;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.st-edge {
+  stroke: #343843;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.st-edge.is-next {
+  stroke: var(--c);
+  stroke-opacity: .45;
+  stroke-dasharray: 3 4;
+}
+.st-edge.is-lit {
+  stroke: var(--cl);
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 3px var(--c));
+}
+
+/* スキル（丸） */
+.st-node {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1.5px solid #3a3e49;
+  border-radius: 50%;
+  background: #15171c;
+  color: #565b67;
+  transform: translate(-50%, -50%);
+  transition: transform .2s, box-shadow .2s;
+}
+.st-node svg {
+  width: 12px;
+  height: 12px;
+}
+.st-node.is-cap {
+  width: 34px;
+  height: 34px;
+}
+.st-node.is-cap svg {
+  width: 16px;
+  height: 16px;
+}
+/* 挑戦中：まわりの輪が、進み具合だけ満ちる */
+.st-node.is-active {
+  border-color: transparent;
+  color: var(--cl);
+}
+.st-node.is-active::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(var(--cl) calc(var(--p, 0) * 1%), rgba(255, 255, 255, .1) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+}
+/* 解放済み：筋群の色で光る */
+.st-node.is-on {
+  border-color: transparent;
+  background: var(--g);
+  color: #fff;
+  box-shadow: 0 0 12px var(--c);
+}
+.st-node.is-sel {
+  box-shadow: 0 0 0 3px #0c0d11, 0 0 0 4.5px #ece8df;
+}
+.st-node.is-on.is-sel {
+  box-shadow: 0 0 0 3px #0c0d11, 0 0 0 4.5px #ece8df, 0 0 14px var(--c);
+}
+.st-node.is-pop {
+  animation: st-pop .6s ease;
+}
+@keyframes st-pop {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  40% { transform: translate(-50%, -50%) scale(1.45); box-shadow: 0 0 22px var(--volt); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+.st-root {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  background: #ece8df;
+  color: #16181e;
+  box-shadow: 0 0 0 3px #0c0d11, 0 0 0 4.5px #ece8df;
+}
+.st-root svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 進み具合 */
+.st-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 14px;
+}
+.st-pct {
+  font-size: 38px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--volt);
+}
+.st-pct small {
+  margin-left: 2px;
+  font-size: 15px;
+}
+.st-pct-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .3em;
+  color: #9a9ea6;
+}
+.st-bar {
+  width: 70%;
+  height: 3px;
+  margin-top: 6px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, .1);
+  overflow: hidden;
+}
+.st-bar i {
+  display: block;
+  height: 100%;
+  background: var(--volt);
+  box-shadow: 0 0 6px var(--volt-glow);
+}
+.st-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #7c818b;
+  text-align: center;
+}
+
+/* 新しく解放 */
+.st-news {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.st-news-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 3px;
+  background: var(--gloss), var(--accent);
+  color: var(--volt);
+}
+.st-news-icon svg {
+  width: 18px;
+  height: 18px;
+  filter: drop-shadow(0 0 4px var(--volt-glow));
+}
+.st-news b {
+  display: block;
+  font-size: 14px;
+}
+.st-news-list {
+  font-size: 12px;
+  color: var(--sub);
+}
+
+/* 選んだスキル */
+.st-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.st-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.st-detail-branch {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sub);
+}
+.st-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--soft);
+  color: var(--sub);
+  font-size: 11px;
+  font-weight: 700;
+}
+.st-state svg {
+  width: 12px;
+  height: 12px;
+}
+.st-state.is-active {
+  color: var(--text);
+}
+.st-state.is-on {
+  background: var(--gloss), var(--accent);
+  color: var(--accent-text);
+}
+.st-state.is-on svg {
+  color: var(--volt);
+}
+.st-detail-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+.st-detail-cond {
+  margin: 0;
+  font-size: 14px;
+}
+.st-detail .field-help {
+  margin: 0;
+}
+.st-detail-bar,
+.st-mini-bar {
+  display: block;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--soft);
+  overflow: hidden;
+}
+.st-detail-bar i,
+.st-mini-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--gloss), var(--dot-grad, var(--dot));
+}
+.st-mini-bar {
+  height: 4px;
+  margin-top: 4px;
+}
+
+/* 系統の一覧 */
+.list > li:not(:last-child) > .st-branch {
+  border-bottom: 1px solid var(--line);
+}
+.st-branch {
+  padding: 10px 0;
+  gap: 10px;
+}
+.st-branch-icon {
+  flex: none;
+  width: 36px;
+  height: 36px;
+}
+.st-branch-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.st-branch-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.st-en {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .2em;
+  color: var(--sub);
+}
+.st-pips {
+  display: flex;
+  gap: 3px;
+  margin-left: auto;
+}
+.st-pips i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.st-pips i[data-on] {
+  background: var(--dot);
+}
+
+/* 下のタブ：まだ見ていない解放があるとき */
+.tab-icon {
+  position: relative;
+}
+.tab-dot {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--volt-ink);
+  box-shadow: 0 0 0 2px var(--card), 0 0 6px var(--volt-glow);
+}
+
+/* トレーニング終了：スキル解放のお知らせ */
+.st-unlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: linear-gradient(180deg, #16181e 0%, #0c0d11 100%);
+  color: #ece8df;
+}
+.st-unlock-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.st-unlock-title svg {
+  width: 16px;
+  height: 16px;
+  color: var(--volt);
+  filter: drop-shadow(0 0 4px var(--volt-glow));
+}
+.st-unlock ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+.st-unlock li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.st-unlock .btn {
+  background: #ece8df;
+  color: #16181e;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-node.is-pop { animation: none; }
+}
+:root[data-effects="off"] .st-node.is-pop {
+  animation: none;
+}
+:root[data-effects="off"] .st-bolts {
+  display: none;
+}

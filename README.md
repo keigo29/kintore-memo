@@ -64,6 +64,9 @@ src/
     BrandMark.tsx        ロゴの銀色のダンベル
     RestTimer.tsx        休憩タイマーの帯
     SessionReport.tsx    1回分のまとめの表示（数字のタイル・種目ごと・あと何回・計算の仕方）
+    Volt.tsx             稲妻の部品（ボタンの縁を走る電気・角から角へ走る電気・チャージの電気）
+    ChargeCard.tsx       ホームの「今週のチャージ」
+    SkillTreeView.tsx    扇の形のスキルツリーと、線を流れる電気（canvas）
     Charts.tsx           分析のグラフ（折れ線・週ごとの棒・筋群ごとの横棒。SVG で描く）
   data/
     types.ts             データの型（種目・メニュー・記録・セット・自己ベスト・設定）
@@ -81,9 +84,13 @@ src/
     backupFormat.ts      バックアップファイル（JSON）の形と、読み込む前の確認
     backupFormat.test.ts backupFormat.ts のテスト（npm test）
     backup.ts            書き出し・読み込み（置き換え）・全て削除
+    skills.ts            スキルツリーの決まり（筋群6系統×6スキル）と、記録からの解放の計算
+    skills.test.ts       skills.ts のテスト
+    charge.test.ts       今週のチャージ（週の目標・連続週）のテスト
     analysis.ts          分析の数字（期間まとめ・週ごとの回数・筋群別セット・種目の推移・自己ベスト）
   lib/
     format.ts            重量・時間・日付の表示の形
+    effects.ts           稲妻の演出の共通部分（電気の色・オン／オフ・ギザギザの線）
     theme.ts             テーマ（ライト／ダーク／端末に合わせる）の切り替え
     date.ts              日付の計算（その日・その週の始まり）
     useNow.ts            1秒ごとの時刻（経過時間）
@@ -106,6 +113,7 @@ src/
     HistoryDetailScreen.tsx  過去の記録の詳細・編集・複製・削除・メニューにする
     TemplateEditScreen.tsx   メニューを作る・直す（種目・セット数・並べかえ）
     AnalysisScreen.tsx   分析（期間まとめ・週ごとの回数・筋群別・種目の推移・自己ベスト）
+    SkillTreeScreen.tsx  スキルツリー（進み具合・選んだスキル・系統ごとの次の挑戦）
     SettingsScreen.tsx   設定（テーマ・重量の刻み・休憩・バックアップ・データ・このアプリについて）
   styles/
     tokens.css           デザインのトークン（色・角丸・影）。色はここだけに書く

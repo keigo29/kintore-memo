@@ -6,6 +6,7 @@ import type { TabId } from './components/TabBar'
 import { useToast } from './components/Toast'
 import { db } from './data/db'
 import { getSettings } from './data/settings'
+import { getSkillTree, unseenSkills } from './data/skills'
 import { itemsFromSession, startFromTemplate } from './data/templates'
 import type { TemplateItem } from './data/templates'
 import { getActiveSession, startSession } from './data/workout'
@@ -19,6 +20,7 @@ import { HistoryScreen } from './screens/HistoryScreen'
 import { AnalysisScreen } from './screens/AnalysisScreen'
 import { ReviewScreen } from './screens/ReviewScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
+import { SkillTreeScreen } from './screens/SkillTreeScreen'
 import { ShareScreen } from './screens/ShareScreen'
 import { SummaryScreen } from './screens/SummaryScreen'
 import { TemplateEditScreen } from './screens/TemplateEditScreen'
@@ -57,6 +59,9 @@ export default function App() {
     const st = await getSettings()
     return { theme: st.theme, effects: st.effects, volt: st.voltColor }
   }, [])
+  // まだ見ていないスキルの解放があれば、下の「スキル」タブに点を付ける
+  const skillNews = useLiveQuery(async () => unseenSkills(await getSkillTree(), (await getSettings()).skillSeen).length > 0, [])
+
   useEffect(() => {
     if (!look) return
     applyTheme(look.theme)
@@ -124,6 +129,10 @@ export default function App() {
           sessionId={view.sessionId}
           onClose={() => backHome()}
           onShare={(sessionId) => setView({ kind: 'share', sessionId, from: 'summary' })}
+          onOpenSkills={() => {
+            setView({ kind: 'tabs' })
+            setTab('skills')
+          }}
         />
         {toast.node}
       </div>
@@ -209,6 +218,7 @@ export default function App() {
         />
       )}
       {tab === 'history' && <HistoryScreen onOpen={setHistoryDetail} />}
+      {tab === 'skills' && <SkillTreeScreen />}
       {tab === 'analysis' && (
         <AnalysisScreen
           onOpenSession={(id) => {
@@ -219,7 +229,7 @@ export default function App() {
       )}
       {tab === 'exercises' && <ExercisesScreen onToast={toast.show} />}
 
-      <TabBar current={tab} onChange={setTab} />
+      <TabBar current={tab} onChange={setTab} dots={skillNews && tab !== 'skills' ? ['skills'] : []} />
       {starting && (
         <StartDialog
           onClose={() => setStarting(false)}

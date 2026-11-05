@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ChevronLeft, Download, Monitor, Moon, Sun, Upload } from 'lucide-react'
+import { ChevronLeft, Download, Minus, Monitor, Moon, Plus, Sun, Upload } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Dialog } from '../components/Dialog'
 import { CalcHelp } from '../components/SessionReport'
@@ -17,6 +17,7 @@ import { saveImage } from '../share/shareActions'
   設定
   ・見た目：テーマ（ライト／ダーク／端末に合わせる）
   ・記録：重量の刻み・休憩の長さ・セット完了で休憩を始めるか
+  ・やる気：週の目標日数（今週のチャージ）・稲妻の演出・電気の色
   ・バックアップ：JSON ファイルに書き出す／読み込む（置き換え）
   ・データ：保存のようす・全て削除
   ・このアプリについて：版・計算の仕方
@@ -31,6 +32,11 @@ const THEMES: { id: UserSettings['theme']; label: string; icon: typeof Sun }[] =
   { id: 'light', label: 'ライト', icon: Sun },
   { id: 'dark', label: 'ダーク', icon: Moon },
   { id: 'system', label: '端末に合わせる', icon: Monitor },
+]
+const VOLTS: { id: UserSettings['voltColor']; label: string }[] = [
+  { id: 'cyan', label: '水色' },
+  { id: 'yellow', label: '黄' },
+  { id: 'white', label: '白' },
 ]
 const STEPS = [1, 1.25, 2.5, 5]
 const REST_STEP = 15
@@ -161,6 +167,66 @@ export function SettingsScreen({ onBack, onToast }: Props) {
               <span className="field-help">オフにすると、休憩タイマーは自分で押して始めます</span>
             </div>
             <Switch checked={settings.restAuto} onChange={(v) => set({ restAuto: v })} label="セット完了で休憩を始める" />
+          </div>
+        </div>
+      </div>
+
+      {/* やる気 */}
+      <div>
+        <h2 className="section-title">やる気</h2>
+        <div className="card settings-list">
+          <div className="settings-row">
+            <div>
+              <span className="settings-name">週の目標</span>
+              <span className="field-help">ホームの「今週のチャージ」が満タンになる日数</span>
+            </div>
+            <span className="settings-rest">
+              <button
+                type="button"
+                className="rest-btn num"
+                aria-label="1日減らす"
+                disabled={settings.weeklyGoal <= 1}
+                onClick={() => set({ weeklyGoal: Math.max(1, settings.weeklyGoal - 1) })}
+              >
+                <Minus strokeWidth={2.4} />
+              </button>
+              <span className="settings-rest-time num">{settings.weeklyGoal}日</span>
+              <button
+                type="button"
+                className="rest-btn num"
+                aria-label="1日増やす"
+                disabled={settings.weeklyGoal >= 7}
+                onClick={() => set({ weeklyGoal: Math.min(7, settings.weeklyGoal + 1) })}
+              >
+                <Plus strokeWidth={2.4} />
+              </button>
+            </span>
+          </div>
+          <div className="settings-row">
+            <div>
+              <span className="settings-name">稲妻の演出</span>
+              <span className="field-help">セット完了・自己ベスト・チャージ・スキルツリーで電気が走ります</span>
+            </div>
+            <Switch checked={settings.effects} onChange={(v) => set({ effects: v })} label="稲妻の演出" />
+          </div>
+          <div className="settings-row settings-row-col">
+            <span className="settings-name">電気の色</span>
+            <div className="seg seg-3" role="radiogroup" aria-label="電気の色">
+              {VOLTS.map(({ id, label }) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="radio"
+                  className="seg-btn"
+                  aria-checked={settings.voltColor === id}
+                  disabled={!settings.effects}
+                  onClick={() => set({ voltColor: id })}
+                >
+                  <span className="volt-swatch" data-volt={id} aria-hidden />
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

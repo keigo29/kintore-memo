@@ -1,6 +1,7 @@
-import { startOfDay } from '../lib/date'
+import { addDays, dayKey, startOfDay, startOfWeek } from '../lib/date'
 import { db } from './db'
 import { listSessions } from './history'
+import { getSettings } from './settings'
 import type { SessionRow } from './history'
 import type { MuscleGroup } from './muscleGroups'
 import type { RecordType } from './types'
@@ -23,7 +24,11 @@ export type RecentRecord = {
   items: { type: RecordType; value: number }[]
 }
 
+/** 今週のチャージ：goal 日の目標に対して、今週 days 日トレーニングした。streak は目標を達成した週の連続数 */
+export type Charge = { goal: number; days: number; streak: number; weekStart: number }
+
 export type HomeData = {
+  charge: Charge
   total: number
   recent: SessionRow[]
   /** 筋群ごとの、一番最近やった日の 0:00（やっていなければ入らない） */
@@ -74,6 +79,7 @@ export async function getHomeData(now = Date.now()): Promise<HomeData> {
   }
 
   return {
+    charge: await getCharge(rows.map((r) => r.startedAt), now),
     total: rows.length,
     recent: rows.slice(0, 3),
     lastByGroup,
@@ -81,4 +87,31 @@ export async function getHomeData(now = Date.now()): Promise<HomeData> {
     lastMonth: month(lastMonthStart, monthStart),
     records: grouped,
   }
+}
+
+/**
+ * 今週のチャージと、連続して目標を達成した週の数
+ * ・数えるのは「トレーニングした日」の数（1日に2回やっても1日）
+ * ・連続は、先週からさかのぼって目標に届いた週を数える。今週もすでに届いていれば足す
+ *   （今週がまだ途中なら、届いていなくても連続は途切れない）
+ */
+export async function getCharge(startedAts: number[], now = Date.now()): Promise<Charge> {
+  return computeCharge(startedAts, (await getSettings()).weeklyGoal, now)
+}
+
+/** getCharge の計算だけ（データベースを使わないので、テストできる） */
+export function computeCharge(startedAts: number[], goal: number, now = Date.now()): Charge {
+  const daysByWeek = new Map<number, Set<string>>()
+  for (const at of startedAts) {
+    const w = startOfWeek(at)
+    const set = daysByWeek.get(w) ?? new Set<string>()
+    set.add(dayKey(at))
+    daysByWeek.set(w, set)
+  }
+  const weekStart = startOfWeek(now)
+  const days = daysByWeek.get(weekStart)?.size ?? 0
+  let streak = 0
+  for (let w = addDays(weekStart, -7); (daysByWeek.get(w)?.size ?? 0) >= goal; w = addDays(w, -7)) streak++
+  if (days >= goal) streak++
+  return { goal, days, streak, weekStart }
 }

@@ -49,6 +49,10 @@ export const DEFAULT_SETTINGS: UserSettings = {
   weightStepKg: 2.5,
   restAuto: true,
   lastExportAt: null,
+  effects: true,
+  voltColor: 'cyan',
+  weeklyGoal: 3,
+  skillSeen: [],
   shareDefaults: {
     muscleGroups: true,
     exerciseCount: true,

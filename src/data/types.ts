@@ -109,6 +109,8 @@ export type ShareDefaults = {
 }
 
 /** 設定（1件だけ。id は 'me'） */
+export type VoltColor = 'cyan' | 'yellow' | 'white'
+
 export type UserSettings = {
   id: 'me'
   theme: 'light' | 'dark' | 'system'
@@ -120,6 +122,14 @@ export type UserSettings = {
   restAuto: boolean
   /** 最後に書き出した日時（まだなら null） */
   lastExportAt: number | null
+  /** 稲妻の演出（セット完了・自己ベスト・今週のチャージ・スキルツリー）を出すか */
+  effects: boolean
+  /** 電気の色 */
+  voltColor: VoltColor
+  /** 1週間に何日トレーニングするか（今週のチャージの目標） */
+  weeklyGoal: number
+  /** もう見た（お知らせ済みの）スキルの id */
+  skillSeen: string[]
   shareDefaults: ShareDefaults
   shareMessage: string
 }

@@ -1,0 +1,223 @@
+/* 稲妻の演出（くわしくは src/lib/effects.ts・src/components/Volt.tsx） */
+
+/* ---------- ① セット完了：ボタンの縁を電気が一周 ---------- */
+.zap-host {
+  position: relative;
+}
+.edge-zap {
+  position: absolute;
+  inset: -3px;
+  width: calc(100% + 6px);
+  height: calc(100% + 6px);
+  overflow: visible;
+  pointer-events: none;
+}
+.edge-zap rect {
+  fill: none;
+  stroke: var(--volt-ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-dasharray: 0.2 0.8;
+  filter: drop-shadow(0 0 4px var(--volt-glow));
+  opacity: 0;
+  animation: edge-run 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes edge-run {
+  0% { stroke-dashoffset: 0; opacity: 1; }
+  80% { opacity: 1; }
+  100% { stroke-dashoffset: -1; opacity: 0; }
+}
+.zap-pop {
+  position: absolute;
+  right: 12px;
+  top: -10px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  pointer-events: none;
+  opacity: 0;
+  animation: zap-pop 0.9s ease-out forwards;
+}
+.zap-pop svg {
+  width: 12px;
+  height: 12px;
+  color: var(--volt-ink);
+}
+@keyframes zap-pop {
+  0% { opacity: 0; transform: translateY(6px); }
+  20% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-16px); }
+}
+/* 完了ボタンの稲妻のマークが一瞬ふるえる */
+.btn-primary .lucide-zap {
+  color: var(--volt);
+}
+
+/* ---------- ② 自己ベスト：角から角へ電気が走る ---------- */
+.report-row {
+  position: relative;
+}
+.arc-run {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.arc-run polyline {
+  fill: none;
+  stroke: var(--volt-ink);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px var(--volt-glow));
+}
+.report-row.is-pr .tag-pr svg {
+  animation: pr-glow 1.4s ease-in-out 2;
+  animation-delay: var(--pr-delay, 0ms);
+}
+@keyframes pr-glow {
+  0%, 100% { color: inherit; filter: none; }
+  40% { color: var(--volt); filter: drop-shadow(0 0 4px var(--volt-glow)); }
+}
+
+/* ---------- ③ 今週のチャージ ---------- */
+.charge {
+  margin-bottom: 14px;
+}
+.charge-title {
+  margin: 0;
+}
+.charge-streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: var(--soft);
+  font-size: 12px;
+  font-weight: 600;
+}
+.charge-streak svg {
+  width: 12px;
+  height: 12px;
+  color: var(--volt-ink);
+}
+.charge-cells {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n), 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+.charge-cell {
+  display: grid;
+  place-items: center;
+  height: 34px;
+  border-radius: 2px;
+  background: var(--soft);
+  color: var(--line);
+}
+.charge-cell svg {
+  width: 16px;
+  height: 16px;
+}
+.charge-cell[data-on] {
+  background: var(--gloss), var(--accent);
+  color: #fff;
+}
+:root[data-theme="dark"] .charge-cell[data-on] {
+  background: var(--gloss), #2c2d31;
+}
+/* 目標より多くやった日は、少し小さく見せる */
+.charge-cell[data-extra] {
+  opacity: 0.75;
+}
+/* 新しくたまったマス：下から満ちて、マークが一瞬光る */
+.charge-cell[data-fresh] {
+  animation: charge-fill 0.45s ease-out both;
+  animation-delay: var(--d, 0ms);
+}
+.charge-cell[data-fresh] svg {
+  animation: charge-flick 0.5s steps(3) both;
+  animation-delay: calc(var(--d, 0ms) + 0.3s);
+}
+@keyframes charge-fill {
+  0% { clip-path: inset(100% 0 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+@keyframes charge-flick {
+  0%, 100% { color: #fff; }
+  50% { color: var(--volt); }
+}
+/* 満タン：マークが電気の色になり、上を電気が走る */
+.charge[data-full] .charge-cell[data-on] {
+  color: var(--volt);
+}
+.charge[data-full] .charge-cell[data-on] svg {
+  filter: drop-shadow(0 0 3px var(--volt-glow));
+}
+.charge-arc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.charge-arc polyline {
+  fill: none;
+  stroke: var(--volt);
+  stroke-width: 1.3;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px var(--volt-glow));
+}
+.charge-foot {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--sub);
+}
+.charge-msg.is-full {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* ---------- 演出オフ・視差効果を減らす ---------- */
+:root[data-effects="off"] .edge-zap,
+:root[data-effects="off"] .zap-pop,
+:root[data-effects="off"] .arc-run,
+:root[data-effects="off"] .charge-arc {
+  display: none;
+}
+:root[data-effects="off"] .charge-cell,
+:root[data-effects="off"] .charge-cell svg,
+:root[data-effects="off"] .tag-pr svg {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .edge-zap, .zap-pop, .arc-run, .charge-arc { display: none; }
+  .charge-cell, .charge-cell svg, .tag-pr svg { animation: none !important; }
+}
+
+/* 設定：電気の色の見本 */
+.volt-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--line);
+}
+.volt-swatch[data-volt="cyan"] { background: #5ce1ff; }
+.volt-swatch[data-volt="yellow"] { background: #ffd23f; }
+.volt-swatch[data-volt="white"] { background: #fff; }
+.seg-btn:disabled {
+  opacity: 0.45;
+}

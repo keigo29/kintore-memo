@@ -62,7 +62,7 @@ export function SummaryScreen({ sessionId, onClose, onShare }: Props) {
 
       <div>
         <h2 className="section-title">トレーニング内容</h2>
-        <ExerciseResults summary={summary} />
+        <ExerciseResults summary={summary} animate />
       </div>
 
       {(session.effort !== null || session.note) && (

@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { ChevronRight, ClipboardList, Play, Plus, Settings, Trophy } from 'lucide-react'
 import { BrandMark } from '../components/BrandMark'
+import { ChargeCard } from '../components/ChargeCard'
 import { EmptyState } from '../components/EmptyState'
 import { MuscleIcon } from '../components/MuscleIcon'
 import { formatNumber } from '../components/SessionReport'
@@ -104,10 +105,7 @@ export function HomeScreen({ activeStartedAt, onStart, onOpenSettings, onEditTem
         <>
           {/* 2. 今週と今月 */}
           <div className="card">
-            <div className="row-between">
-              <h2 className="section-title">今週</h2>
-              <span className="week-count num">{doneDays.size}日</span>
-            </div>
+            <ChargeCard charge={home.charge} />
             <ol className="week">
               {week.map((d, i) => (
                 <li key={d} className="week-day" data-today={d === today || undefined} data-done={doneDays.has(dayKey(d)) || undefined}>

@@ -149,3 +149,26 @@
   --mi-on-bottom: #c9ccd1;
   color-scheme: dark;
 }
+
+/* ---------- 電気の色（稲妻の演出） ----------
+   --volt：暗い背景（黒のボタンやツリー）の上の色
+   --volt-ink：明るい背景（白いカード）の上でも見える、少し濃い色 */
+:root,
+:root[data-volt="cyan"] {
+  --volt: #5ce1ff;
+  --volt-ink: #0aa3d6;
+  --volt-glow: rgba(92, 225, 255, .55);
+}
+:root[data-volt="yellow"] {
+  --volt: #ffd23f;
+  --volt-ink: #d39e00;
+  --volt-glow: rgba(255, 210, 63, .55);
+}
+:root[data-volt="white"] {
+  --volt: #ffffff;
+  --volt-ink: #3a3b3e;
+  --volt-glow: rgba(255, 255, 255, .6);
+}
+:root[data-theme="dark"] {
+  --volt-ink: var(--volt);
+}

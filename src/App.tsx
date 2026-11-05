@@ -10,6 +10,7 @@ import { itemsFromSession, startFromTemplate } from './data/templates'
 import type { TemplateItem } from './data/templates'
 import { getActiveSession, startSession } from './data/workout'
 import { formatDate } from './lib/format'
+import { applyEffects } from './lib/effects'
 import { applyTheme } from './lib/theme'
 import { ExercisesScreen } from './screens/ExercisesScreen'
 import { HomeScreen } from './screens/HomeScreen'
@@ -52,10 +53,16 @@ export default function App() {
   const active = useLiveQuery(async () => (await getActiveSession()) ?? null, [])
 
   // テーマ：設定が変わったら（読み込みで変わったときも）すぐ入れ替える
-  const theme = useLiveQuery(async () => (await getSettings()).theme, [])
+  const look = useLiveQuery(async () => {
+    const st = await getSettings()
+    return { theme: st.theme, effects: st.effects, volt: st.voltColor }
+  }, [])
   useEffect(() => {
-    if (theme) applyTheme(theme)
-  }, [theme])
+    if (!look) return
+    applyTheme(look.theme)
+    // 稲妻の演出のオン／オフと電気の色
+    applyEffects(look.effects, look.volt)
+  }, [look?.theme, look?.effects, look?.volt])
 
   // アプリを開いたとき、トレーニングの途中だったら、その画面から続ける
   const resumed = useRef(false)

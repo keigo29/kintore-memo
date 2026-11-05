@@ -3,6 +3,7 @@ import { MUSCLE_GROUPS, groupColor } from '../data/muscleGroups'
 import type { Rir } from '../data/types'
 import type { SessionSummary } from '../data/summary'
 import { formatDuration, formatKg } from '../lib/format'
+import { ArcRun } from './Volt'
 
 /*
   1回のトレーニングのまとめを見せる部品（振り返り画面と終了画面で使う）
@@ -56,17 +57,28 @@ export function GroupChips({ summary }: { summary: SessionSummary }) {
   )
 }
 
-/** 種目ごとの結果：セット数・最高重量・前回からの変化・自己ベスト */
-export function ExerciseResults({ summary }: { summary: SessionSummary }) {
+/**
+ * 種目ごとの結果：セット数・最高重量・前回からの変化・自己ベスト
+ * animate：自己ベストの行に、角から角へ電気を走らせる（トレーニング終了の画面だけ）
+ */
+export function ExerciseResults({ summary, animate = false }: { summary: SessionSummary; animate?: boolean }) {
+  let prIndex = 0
   return (
     <ul className="card list report-list">
       {summary.exercises.map((e) => {
+        // 自己ベストの行が続くときは、上から順に少しずつずらして走らせる
+        const delay = e.records.length > 0 ? 300 + prIndex++ * 280 : 0
         const main = e.bodyweight
           ? `${e.stats.sets}セット・合計${e.stats.reps}回`
           : `${e.stats.sets}セット・最高 ${formatKg(e.stats.topWeight)}kg・${formatNumber(e.stats.volume)}kg`
         const diff = e.change?.diff ?? 0
         return (
-          <li key={e.exerciseId} className="report-row" style={groupColor(e.group)}>
+          <li
+            key={e.exerciseId}
+            className={e.records.length > 0 && animate ? 'report-row is-pr' : 'report-row'}
+            style={{ ...groupColor(e.group), '--pr-delay': `${delay}ms` } as React.CSSProperties}
+          >
+            {animate && e.records.length > 0 && <ArcRun delay={delay} />}
             <span className="dot" aria-hidden />
             <span className="report-text">
               <span className="list-name">{e.name}</span>

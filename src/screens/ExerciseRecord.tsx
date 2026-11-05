@@ -1,11 +1,12 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Check, ChevronLeft, ChevronRight, History, Plus, Trash2 } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, History, Plus, Trash2, Zap } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Dialog } from '../components/Dialog'
 import { ExercisePickerDialog } from '../components/ExercisePickerDialog'
 import { NumberStepper } from '../components/NumberStepper'
 import { RestTimer } from '../components/RestTimer'
 import { Switch } from '../components/Switch'
+import { BoltIcon, EdgeZap } from '../components/Volt'
 import { DEFAULT_SETTINGS, db } from '../data/db'
 import { groupColor } from '../data/muscleGroups'
 import type { Rir, WorkoutSet } from '../data/types'
@@ -48,6 +49,8 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
   const [message, setMessage] = useState<string | null>(null)
   const [showNote, setShowNote] = useState(false)
   const [picking, setPicking] = useState(false)
+  // セット完了の稲妻：完了するたびに1増やし、key にして演出を作り直す
+  const [zap, setZap] = useState(0)
 
   const data = useLiveQuery(async () => {
     const we = await db.workoutExercises.get(workoutExerciseId)
@@ -114,6 +117,7 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
     const label = labels.get(active.id)
     await completeSet(active.id)
     navigator.vibrate?.(15)
+    setZap((z) => z + 1)
     // 休憩タイマーを自動でスタート（ウォームアップのあとも休憩する）。設定で切れる
     if (restAuto) restTimer.start(restSeconds)
     // 完了したセットを選んだままにする（次のセットはまだ作らない）
@@ -349,23 +353,33 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
             {message}
           </div>
         )}
-        {active && active.completedAt === null ? (
-          <button type="button" className="btn btn-primary btn-xl btn-block" onClick={onComplete}>
-            <Check strokeWidth={2.6} aria-hidden />
-            {labels.get(active.id) === 'W' ? 'ウォームアップ完了' : `${labels.get(active.id)}セット目を完了`}
-          </button>
-        ) : (
-          // 完了したあと：止めるか続けるかを選ぶ
-          <div className="action-pair">
-            <button type="button" className="btn btn-xl" onClick={onFinishExercise}>
-              {nextId ? '次の種目へ' : '種目を終える'}
+        {/* 稲妻：完了した瞬間に、ボタンの縁を電気が一周して「+1」が出る */}
+        <div className="zap-host">
+          {active && active.completedAt === null ? (
+            <button type="button" className="btn btn-primary btn-xl btn-block" onClick={onComplete}>
+              <Zap strokeWidth={2.4} aria-hidden />
+              {labels.get(active.id) === 'W' ? 'ウォームアップ完了' : `${labels.get(active.id)}セット目を完了`}
             </button>
-            <button type="button" className="btn btn-primary btn-xl" onClick={onNextSet}>
-              <Plus strokeWidth={2.6} aria-hidden />
-              次のセット
-            </button>
-          </div>
-        )}
+          ) : (
+            // 完了したあと：止めるか続けるかを選ぶ
+            <div className="action-pair">
+              <button type="button" className="btn btn-xl" onClick={onFinishExercise}>
+                {nextId ? '次の種目へ' : '種目を終える'}
+              </button>
+              <button type="button" className="btn btn-primary btn-xl" onClick={onNextSet}>
+                <Plus strokeWidth={2.6} aria-hidden />
+                次のセット
+              </button>
+            </div>
+          )}
+          {zap > 0 && <EdgeZap key={zap} />}
+          {zap > 0 && (
+            <span key={`pop-${zap}`} className="zap-pop num" aria-hidden>
+              <BoltIcon />
+              +1
+            </span>
+          )}
+        </div>
       </div>
 
       {picking && (

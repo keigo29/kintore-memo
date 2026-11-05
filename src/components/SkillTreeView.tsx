@@ -1,8 +1,46 @@
-import { CalendarCheck, Crown, Dumbbell, Flame, Footprints, Layers, Trophy } from 'lucide-react'
+import {
+  Anchor,
+  Award,
+  BicepsFlexed,
+  Blocks,
+  Boxes,
+  CalendarCheck,
+  CalendarDays,
+  ChartColumnIncreasing,
+  Clock,
+  Crown,
+  Database,
+  Dumbbell,
+  Flag,
+  Flame,
+  Footprints,
+  Gauge,
+  Gem,
+  Hammer,
+  Hand,
+  Hourglass,
+  Layers,
+  Medal,
+  MountainSnow,
+  PersonStanding,
+  Pickaxe,
+  Repeat,
+  Rocket,
+  Shield,
+  Sprout,
+  Star,
+  Sun,
+  Sunrise,
+  Swords,
+  Target,
+  Timer,
+  TrendingUp,
+  Trophy,
+} from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useMemo, useRef } from 'react'
 import { BRANCHES, SLOTS } from '../data/skills'
-import type { SkillDef, SkillState, SkillTree } from '../data/skills'
+import type { SkillIcon, SkillState, SkillTree } from '../data/skills'
 import { effectsOn, jag } from '../lib/effects'
 import type { Pt } from '../lib/effects'
 
@@ -33,14 +71,43 @@ const PLACE: Record<string, [number, number]> = {
   '4': [470, 0],
 }
 
-const ICONS: Record<SkillDef['icon'], LucideIcon> = {
-  footprints: Footprints,
-  layers: Layers,
-  'calendar-check': CalendarCheck,
-  dumbbell: Dumbbell,
-  trophy: Trophy,
-  flame: Flame,
-  crown: Crown,
+const ICONS: Record<SkillIcon, LucideIcon> = {
+  Anchor,
+  Award,
+  BicepsFlexed,
+  Blocks,
+  Boxes,
+  CalendarCheck,
+  CalendarDays,
+  ChartColumnIncreasing,
+  Clock,
+  Crown,
+  Database,
+  Flag,
+  Flame,
+  Footprints,
+  Gauge,
+  Gem,
+  Hammer,
+  Hand,
+  Hourglass,
+  Layers,
+  Medal,
+  MountainSnow,
+  PersonStanding,
+  Pickaxe,
+  Repeat,
+  Rocket,
+  Shield,
+  Sprout,
+  Star,
+  Sun,
+  Sunrise,
+  Swords,
+  Target,
+  Timer,
+  TrendingUp,
+  Trophy,
 }
 
 const pt = (r: number, deg: number): Pt => ({

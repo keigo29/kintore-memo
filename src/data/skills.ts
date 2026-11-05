@@ -44,12 +44,28 @@ export const BRANCHES: SkillBranch[] = [
 const SCALE: Record<string, number> = { chest: 1, back: 1, legs: 1, shoulders: 0.8, arms: 0.8, core: 0.5 }
 const roundNice = (n: number) => (n < 10 ? Math.max(1, Math.round(n)) : Math.round(n / 5) * 5)
 
+/**
+ * スキルのアイコン：系統ごとに変えて、36個がなるべく重ならないようにする
+ * 段の意味はそろえる（1：始まり、2a：積み上げ、2b：習慣・時間、3a：鍛錬、3b：突破、4：頂点）
+ */
+const ICON_TABLE = {
+  chest: { '1': 'Footprints', '2a': 'Layers', '2b': 'CalendarCheck', '3a': 'Shield', '3b': 'Trophy', '4': 'Crown' },
+  shoulders: { '1': 'Sunrise', '2a': 'ChartColumnIncreasing', '2b': 'Clock', '3a': 'Swords', '3b': 'Medal', '4': 'Star' },
+  arms: { '1': 'Hand', '2a': 'Blocks', '2b': 'Repeat', '3a': 'Hammer', '3b': 'Award', '4': 'BicepsFlexed' },
+  back: { '1': 'Sprout', '2a': 'Boxes', '2b': 'CalendarDays', '3a': 'Anchor', '3b': 'Rocket', '4': 'MountainSnow' },
+  legs: { '1': 'PersonStanding', '2a': 'TrendingUp', '2b': 'Timer', '3a': 'Pickaxe', '3b': 'Gauge', '4': 'Flag' },
+  core: { '1': 'Target', '2a': 'Database', '2b': 'Hourglass', '3a': 'Gem', '3b': 'Flame', '4': 'Sun' },
+} as const
+
+export type SkillIcon = (typeof ICON_TABLE)[keyof typeof ICON_TABLE][SkillSlot]
+
 export type SkillDef = {
   id: string // 例：chest2a
   group: MuscleGroup
   slot: SkillSlot
   name: string
-  icon: 'footprints' | 'layers' | 'calendar-check' | 'dumbbell' | 'trophy' | 'flame' | 'crown'
+  /** アイコン（SkillTreeView の SKILL_ICONS の名前） */
+  icon: SkillIcon
   metric: SkillMetric
   need: number
   parents: string[]
@@ -64,19 +80,25 @@ export function skillDefs(goals: Goals = new Map()): SkillDef[] {
     const goal = GOAL_GROUPS.includes(group as GoalGroup) ? goals.get(group as GoalGroup) : undefined
     const k = SCALE[group]
     const core = group === 'core'
-    const list: Omit<SkillDef, 'id' | 'group' | 'parents'>[] = [
-      { slot: '1', name: '始めの一歩', icon: 'footprints', metric: 'sets', need: 1 },
-      { slot: '2a', name: '積み上げ', icon: 'layers', metric: 'sets', need: roundNice(30 * k) },
-      { slot: '2b', name: '習慣', icon: 'calendar-check', metric: 'days', need: 8 },
-      { slot: '3a', name: '鍛錬', icon: 'dumbbell', metric: 'sets', need: roundNice(120 * k) },
+    const list: Omit<SkillDef, 'id' | 'group' | 'parents' | 'icon'>[] = [
+      { slot: '1', name: '始めの一歩', metric: 'sets', need: 1 },
+      { slot: '2a', name: '積み上げ', metric: 'sets', need: roundNice(30 * k) },
+      { slot: '2b', name: '習慣', metric: 'days', need: 8 },
+      { slot: '3a', name: '鍛錬', metric: 'sets', need: roundNice(120 * k) },
       core
-        ? { slot: '3b', name: '継続', icon: 'flame', metric: 'days', need: 30 }
-        : { slot: '3b', name: '突破', icon: 'trophy', metric: 'prs', need: 5 },
+        ? { slot: '3b', name: '継続', metric: 'days', need: 30 }
+        : { slot: '3b', name: '突破', metric: 'prs', need: 5 },
       goal
-        ? { slot: '4', name: `${goal.exerciseName} ${goal.targetKg}kg`, icon: 'crown', metric: 'goal', need: goal.targetKg, exerciseId: goal.exerciseId }
-        : { slot: '4', name: `${name}の極み`, icon: 'crown', metric: 'sets', need: roundNice(300 * k) },
+        ? { slot: '4', name: `${goal.exerciseName} ${goal.targetKg}kg`, metric: 'goal', need: goal.targetKg, exerciseId: goal.exerciseId }
+        : { slot: '4', name: `${name}の極み`, metric: 'sets', need: roundNice(300 * k) },
     ]
-    return list.map((d) => ({ ...d, id: group + d.slot, group, parents: PARENTS[d.slot].map((p) => group + p) }))
+    return list.map((d) => ({
+      ...d,
+      id: group + d.slot,
+      group,
+      icon: ICON_TABLE[group as keyof typeof ICON_TABLE][d.slot],
+      parents: PARENTS[d.slot].map((p) => group + p),
+    }))
   })
 }
 

@@ -1,9 +1,11 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ChevronLeft, Download, Minus, Monitor, Moon, Plus, Sun, Upload } from 'lucide-react'
+import { ChevronLeft, CloudUpload, Download, Minus, Monitor, Moon, Plus, Sun, Upload } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Dialog } from '../components/Dialog'
 import { CalcHelp } from '../components/SessionReport'
 import { Switch } from '../components/Switch'
+import { clearCmdSync, getCmdSync, isCmdSyncReady, pushToCmd, setCmdSync } from '../data/cmdSync'
+import type { CmdSync } from '../data/cmdSync'
 import { countBackup, deleteAllData, exportBackup, markExported, restoreBackup } from '../data/backup'
 import { backupFileName, parseBackup } from '../data/backupFormat'
 import type { BackupFile } from '../data/backupFormat'
@@ -19,6 +21,7 @@ import { saveImage } from '../share/shareActions'
   ・記録：重量の刻み・休憩の長さ・セット完了で休憩を始めるか
   ・やる気：週の目標日数（今週のチャージ）・稲妻の演出・電気の色
   ・バックアップ：JSON ファイルに書き出す／読み込む（置き換え）
+  ・Cmd に保存：GitHub の Cmd にバックアップを置く（AI で分析する用。トークンはこの端末だけ）
   ・データ：保存のようす・全て削除
   ・このアプリについて：版・計算の仕方
   変えたらすぐ保存する（「保存」ボタンはない）
@@ -261,6 +264,8 @@ export function SettingsScreen({ onBack, onToast }: Props) {
         </div>
       </div>
 
+      <CmdSyncCard onToast={onToast} />
+
       {/* データ */}
       <div>
         <h2 className="section-title">データ</h2>
@@ -300,7 +305,7 @@ export function SettingsScreen({ onBack, onToast }: Props) {
               v{__APP_VERSION__}（{__BUILT_AT__}）
             </span>
           </div>
-          <p className="field-help settings-about">サーバーを使わず、記録はこの端末の中だけに保存します。どこにも送りません。</p>
+          <p className="field-help settings-about">サーバーを使わず、記録はこの端末の中だけに保存します。「Cmd に保存」をオンにしたときだけ、自分の GitHub のリポジトリに送ります。</p>
         </div>
         <CalcHelp />
       </div>
@@ -362,6 +367,90 @@ export function SettingsScreen({ onBack, onToast }: Props) {
         </Dialog>
       )}
     </section>
+  )
+}
+
+/** Cmd に保存（GitHub の自分のリポジトリにバックアップを置いて、AI で分析する） */
+function CmdSyncCard({ onToast }: { onToast: (message: string) => void }) {
+  const [sync, setSync] = useState<CmdSync>(() => getCmdSync())
+  const [busy, setBusy] = useState(false)
+  const save = (patch: Partial<CmdSync>) => setSync(setCmdSync(patch))
+  const ready = isCmdSyncReady(sync)
+
+  const onPush = async () => {
+    setBusy(true)
+    try {
+      const path = await pushToCmd()
+      onToast(`Cmd に保存しました（${path}）`)
+    } catch (e) {
+      onToast((e as Error).message)
+    } finally {
+      setSync(getCmdSync())
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div>
+      <h2 className="section-title">Cmd に保存（AI で分析）</h2>
+      <div className="card settings-backup">
+        <p className="field-help">
+          バックアップを GitHub の自分のリポジトリ（Cmd）に置きます。Cmd の中でノートと表に作り直され、AI で分析できます。
+          トークンは Fine-grained personal access token で、対象は Cmd だけ、権限は Contents の Read and write にしてください。トークンはこの端末にだけ保存し、バックアップのファイルにも入りません。
+        </p>
+        <label className="field">
+          <span className="field-label">トークン</span>
+          <input
+            className="input"
+            type="password"
+            autoComplete="off"
+            placeholder="github_pat_…"
+            value={sync.token}
+            onChange={(e) => save({ token: e.target.value })}
+          />
+        </label>
+        <label className="field">
+          <span className="field-label">リポジトリ</span>
+          <input className="input" autoComplete="off" value={sync.repo} onChange={(e) => save({ repo: e.target.value })} />
+        </label>
+        <label className="field">
+          <span className="field-label">フォルダ</span>
+          <input className="input" autoComplete="off" value={sync.dir} onChange={(e) => save({ dir: e.target.value })} />
+        </label>
+        <div className="settings-row">
+          <div>
+            <span className="settings-name">終えたら自動で保存</span>
+            <span className="field-help">振り返りで「保存して終える」を押すと、裏で Cmd に保存します</span>
+          </div>
+          <Switch checked={sync.auto} onChange={(v) => save({ auto: v })} label="終えたら自動で保存" />
+        </div>
+        <p className={sync.lastError ? 'settings-last is-stale' : 'settings-last'}>
+          {sync.lastError
+            ? `前回は失敗：${sync.lastError}`
+            : sync.lastAt === null
+              ? 'まだ保存していません'
+              : `最後に保存した日：${formatDate(sync.lastAt)}`}
+        </p>
+        <div className="action-pair">
+          <button type="button" className="btn btn-primary btn-lg" disabled={!ready || busy} onClick={() => void onPush()}>
+            <CloudUpload strokeWidth={2} aria-hidden />
+            {busy ? '保存中…' : '今すぐ保存'}
+          </button>
+          <button
+            type="button"
+            className="btn btn-lg"
+            disabled={busy || sync.token === ''}
+            onClick={() => {
+              clearCmdSync()
+              setSync(getCmdSync())
+              onToast('トークンを消しました')
+            }}
+          >
+            トークンを消す
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 

@@ -3,6 +3,7 @@ import { Check, ChevronLeft } from 'lucide-react'
 import { useState } from 'react'
 import { Dialog } from '../components/Dialog'
 import { CalcHelp, ExerciseResults, GroupChips, RirBlock, StatGrid } from '../components/SessionReport'
+import { autoPushToCmd } from '../data/cmdSync'
 import { finishWithReview, getSessionSummary } from '../data/summary'
 import { discardSession } from '../data/workout'
 import { restTimer } from '../lib/restTimer'
@@ -36,6 +37,7 @@ export function ReviewScreen({ sessionId, onBack, onSaved, onDiscarded }: Props)
   const save = async () => {
     setSaving(true)
     await finishWithReview(sessionId, effort, note)
+    autoPushToCmd() // 設定でオンにしていれば、Cmd に裏で保存する
     restTimer.reset()
     onSaved(sessionId)
   }

@@ -84,6 +84,7 @@ src/
     backupFormat.ts      バックアップファイル（JSON）の形と、読み込む前の確認
     backupFormat.test.ts backupFormat.ts のテスト（npm test）
     backup.ts            書き出し・読み込み（置き換え）・全て削除
+    cmdSync.ts           Cmd（GitHub の自分のリポジトリ）にバックアップを保存する。トークンは端末の localStorage だけ
     goals.ts             重量の達成目標（例：ベンチプレス 100kg）。スキルツリーの最終スキルになる
     skills.ts            スキルツリーの決まり（筋群6系統×6スキル）と、記録からの解放の計算
     skills.test.ts       skills.ts のテスト
@@ -139,3 +140,12 @@ Chrome の開発者ツール → Application → IndexedDB → kintore-memo で�
 
 記録は端末の中（IndexedDB）だけにあります。設定 →「バックアップ」の「書き出す」で、全てのデータを JSON ファイルに保存できます。
 機種変更のときは、新しい端末で「読み込む」を選ぶと、今のデータがファイルの中身に置き換わります（足し合わせはしません）。
+
+## Cmd に保存（AI で分析）
+
+設定 →「Cmd に保存」に GitHub のトークンを入れると、バックアップを Cmd リポジトリの `Data/kintore/` に置けます（「今すぐ保存」か、トレーニングを終えたときに自動）。
+Cmd の中でノートと表に作り直され、AI で分析できます。
+
+- トークン：Fine-grained personal access token。対象は Cmd だけ、権限は Contents の Read and write、期限つき
+- トークンはその端末の localStorage にだけ保存します。サイトのコードにも、書き出すバックアップにも入りません
+- 送り先は GitHub（api.github.com）だけです

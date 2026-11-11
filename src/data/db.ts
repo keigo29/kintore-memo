@@ -48,6 +48,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   restSeconds: 90,
   weightStepKg: 2.5,
   restAuto: true,
+  restCountdown: true,
   lastExportAt: null,
   effects: true,
   voltColor: 'cyan',

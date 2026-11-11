@@ -24,7 +24,7 @@ import {
   updateSet,
 } from '../data/workout'
 import { formatKg, formatShortDate } from '../lib/format'
-import { restTimer } from '../lib/restTimer'
+import { primeRestSound, restTimer } from '../lib/restTimer'
 
 /*
   1つの種目の記録画面
@@ -119,6 +119,8 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
       return
     }
     const label = labels.get(active.id)
+    // 休憩の音は「押したその場」でしか準備できないので、保存の前に準備しておく
+    if (restAuto) primeRestSound()
     await completeSet(active.id)
     navigator.vibrate?.(15)
     setZap((z) => z + 1)

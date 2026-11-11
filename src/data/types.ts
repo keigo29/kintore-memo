@@ -123,6 +123,8 @@ export type UserSettings = {
   weightStepKg: number
   /** セット完了で休憩タイマーを自動で始めるか */
   restAuto: boolean
+  /** 休憩の残り5秒から1秒ごとに音を鳴らすか（アプリを閉じていても鳴る） */
+  restCountdown: boolean
   /** 最後に書き出した日時（まだなら null） */
   lastExportAt: number | null
   /** 稲妻の演出（セット完了・自己ベスト・今週のチャージ・スキルツリー）を出すか */

@@ -171,6 +171,13 @@ export function SettingsScreen({ onBack, onToast }: Props) {
             </div>
             <Switch checked={settings.restAuto} onChange={(v) => set({ restAuto: v })} label="セット完了で休憩を始める" />
           </div>
+          <div className="settings-row">
+            <div>
+              <span className="settings-name">残り5秒から音で知らせる</span>
+              <span className="field-help">1秒ごとにピッ、0秒でピッ・ピッ・ピー。アプリを閉じても鳴ります（iPhone では、流している音楽が止まることがあります）</span>
+            </div>
+            <Switch checked={settings.restCountdown} onChange={(v) => set({ restCountdown: v })} label="残り5秒から音で知らせる" />
+          </div>
         </div>
       </div>
 

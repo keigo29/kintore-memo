@@ -2,6 +2,7 @@ import { liveQuery } from 'dexie'
 import { useSyncExternalStore } from 'react'
 import { db } from '../data/db'
 import { makeWav } from './restSound'
+import type { RestSoundMode } from '../data/types'
 
 /*
   休憩タイマー（アプリ全体で1つ）
@@ -42,15 +43,35 @@ function notify() {
 let ticker: ReturnType<typeof setInterval> | null = null
 let audio: AudioContext | null = null
 
-// 残り5秒のカウントダウンを鳴らすか（設定。端末のデータベースを見張って、いつも最新にしておく）
+// 残り5秒のカウントダウンを鳴らすか・どう鳴らすか（設定。端末のデータベースを見張って、いつも最新にしておく）
 let countdownOn = true
+let soundMode: RestSoundMode = 'mix'
 liveQuery(() => db.settings.get('me')).subscribe({
   next: (s) => {
     countdownOn = s?.restCountdown ?? true
-    if (!countdownOn) stopMedia()
+    const mode = s?.restSoundMode ?? 'mix'
+    if (!countdownOn || mode !== soundMode) stopMedia()
+    soundMode = mode
   },
   error: () => {},
 })
+
+/*
+  音の鳴らし方（iPhone の Safari 16.4 から使える navigator.audioSession）
+  ・mix（音楽を止めない）：ほかのアプリの音楽と混ぜて鳴らす（ambient）。マナーモードでは鳴らない
+                           画面を消したりアプリを閉じたりすると鳴らないことがある
+  ・background（閉じても鳴らす）：音楽アプリと同じ扱い（playback）。裏でも鳴るが、流している音楽は止まる
+  ・audioSession がない端末（Android など）では何もしない（もともと音楽は止まりにくい）
+*/
+type AudioSessionType = 'auto' | 'playback' | 'transient' | 'transient-solo' | 'ambient' | 'play-and-record'
+function applyAudioSession() {
+  try {
+    const session = (navigator as Navigator & { audioSession?: { type: AudioSessionType } }).audioSession
+    if (session) session.type = soundMode === 'background' ? 'playback' : 'ambient'
+  } catch {
+    // 変えられない端末はそのまま
+  }
+}
 
 function load(): RestState {
   try {
@@ -96,6 +117,7 @@ updateTicker()
 
 /** 音の準備。ブラウザは「ボタンを押したとき」にしか音を出せないので、開始のときに作っておく */
 function prepareSound() {
+  applyAudioSession()
   try {
     if (!audio) audio = new AudioContext()
     if (audio.state === 'suspended') void audio.resume()
@@ -129,6 +151,7 @@ function getMedia(): HTMLAudioElement | null {
  * （セット完了は、記録を保存してから休憩を始めるので、先にこれを呼んでおく）
  */
 export function primeRestSound() {
+  applyAudioSession()
   prepareSound()
   const m = getMedia()
   if (!m || !countdownOn || mediaPlaying) return
@@ -151,6 +174,7 @@ export function primeRestSound() {
 function playMedia(leftMs: number) {
   stopMedia()
   if (!countdownOn) return
+  applyAudioSession()
   const m = getMedia()
   if (!m) return
   try {
@@ -159,12 +183,23 @@ function playMedia(leftMs: number) {
     m.muted = false
     mediaPlaying = true
     void m.play().catch(() => (mediaPlaying = false))
-    if ('mediaSession' in navigator) {
+    if (soundMode === 'background' && 'mediaSession' in navigator) {
       navigator.mediaSession.metadata = new MediaMetadata({ title: '休憩タイマー', artist: '筋トレメモ' })
     }
   } catch {
     mediaPlaying = false
   }
+}
+
+/*
+  アプリに戻ってきたとき：裏に回っている間に iPhone が音声を止めていたら（「音楽を止めない」のとき）、
+  残り時間で流し直す。一度流した <audio> なので、押さなくても流せる
+*/
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || state.status !== 'running') return
+    if (countdownOn && media && media.paused) playMedia(remainingMs(state))
+  })
 }
 
 function stopMedia() {
@@ -190,7 +225,8 @@ function alertDone() {
     // ふるえない端末は何もしない
   }
   // カウントダウンの音声が流れていれば、終わりの音はその中に入っている（2回鳴らさない）
-  if (!audio || mediaPlaying) return
+  // （「音楽を止めない」で裏に回ったときなど、iPhone が止めていたら、こちらで鳴らす）
+  if (!audio || (mediaPlaying && media && !media.paused)) return
   try {
     const now = audio.currentTime
     ;[0, 0.25, 0.5].forEach((t, i) => {

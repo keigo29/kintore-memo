@@ -41,6 +41,10 @@ const VOLTS: { id: UserSettings['voltColor']; label: string }[] = [
   { id: 'yellow', label: '黄' },
   { id: 'white', label: '白' },
 ]
+const SOUND_MODES: { id: UserSettings['restSoundMode']; label: string }[] = [
+  { id: 'mix', label: '音楽を止めない' },
+  { id: 'background', label: '閉じても鳴らす' },
+]
 const STEPS = [1, 1.25, 2.5, 5]
 const REST_STEP = 15
 const REST_MIN = 15
@@ -174,9 +178,34 @@ export function SettingsScreen({ onBack, onToast }: Props) {
           <div className="settings-row">
             <div>
               <span className="settings-name">残り5秒から音で知らせる</span>
-              <span className="field-help">1秒ごとにピッ、0秒でピッ・ピッ・ピー。アプリを閉じても鳴ります（iPhone では、流している音楽が止まることがあります）</span>
+              <span className="field-help">1秒ごとにピッ、0秒でピッ・ピッ・ピー</span>
             </div>
             <Switch checked={settings.restCountdown} onChange={(v) => set({ restCountdown: v })} label="残り5秒から音で知らせる" />
+          </div>
+          <div className="settings-row settings-row-col">
+            <div>
+              <span className="settings-name">音の鳴らし方</span>
+              <span className="field-help">
+                {settings.restSoundMode === 'background'
+                  ? 'アプリを閉じても、画面を消しても鳴ります。iPhone では、流している音楽が止まります'
+                  : '音楽を流したまま、上から鳴らします。マナーモードでは鳴りません。画面を消したりアプリを閉じたりすると鳴らないことがあります'}
+              </span>
+            </div>
+            <div className="seg" role="radiogroup" aria-label="音の鳴らし方">
+              {SOUND_MODES.map(({ id, label }) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="radio"
+                  className="seg-btn"
+                  aria-checked={settings.restSoundMode === id}
+                  disabled={!settings.restCountdown}
+                  onClick={() => set({ restSoundMode: id })}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

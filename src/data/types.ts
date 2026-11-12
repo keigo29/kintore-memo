@@ -112,6 +112,9 @@ export type ShareDefaults = {
 /** 重量の達成目標：この種目で、この重量を挙げる */
 export type WeightGoal = { exerciseId: string; targetKg: number }
 
+/** 休憩の音の鳴らし方 */
+export type RestSoundMode = 'mix' | 'background'
+
 export type VoltColor = 'cyan' | 'yellow' | 'white'
 
 export type UserSettings = {
@@ -125,6 +128,8 @@ export type UserSettings = {
   restAuto: boolean
   /** 休憩の残り5秒から1秒ごとに音を鳴らすか（アプリを閉じていても鳴る） */
   restCountdown: boolean
+  /** 休憩の音の鳴らし方：mix＝音楽を止めない（閉じると鳴らないことがある）／background＝閉じても鳴る（音楽は止まる） */
+  restSoundMode: RestSoundMode
   /** 最後に書き出した日時（まだなら null） */
   lastExportAt: number | null
   /** 稲妻の演出（セット完了・自己ベスト・今週のチャージ・スキルツリー）を出すか */

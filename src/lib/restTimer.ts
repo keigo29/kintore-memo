@@ -105,6 +105,7 @@ function updateTicker() {
         set({ ...state, status: 'done' })
         alertDone()
       } else {
+        watchSound()
         notify()
       }
     }, 250)
@@ -173,6 +174,8 @@ export function primeRestSound() {
 /** 残り leftMs のカウントダウンを流し始める（前のは止める） */
 function playMedia(leftMs: number) {
   stopMedia()
+  // 残り5秒より前から流し直すなら、予備のピッも数え直す（同じ秒を2回鳴らさないよう、5秒を切っていたらそのまま）
+  if (leftMs > 5000) lastBeepSec = null
   if (!countdownOn) return
   applyAudioSession()
   const m = getMedia()
@@ -218,6 +221,65 @@ function stopMedia() {
 }
 
 /** 時間になった：ピッ・ピッ・ピーと鳴らして、ふるわせる */
+/** カウントダウンの音声が、今ほんとうに流れているか */
+function mediaActive(): boolean {
+  return mediaPlaying && media !== null && !media.paused
+}
+
+/** Web Audio でピッと鳴らす（[何秒後, 高さ, 長さ] の並び）。アプリを開いているときの予備 */
+function webBeep(beeps: [number, number, number][]) {
+  if (!audio) return
+  try {
+    if (audio.state !== 'running') void audio.resume() // 裏に回ったあとなどで止まっていたら起こす
+    const now = audio.currentTime
+    for (const [t, freq, len] of beeps) {
+      const osc = audio.createOscillator()
+      const gain = audio.createGain()
+      osc.type = 'sine'
+      osc.frequency.value = freq
+      gain.gain.setValueAtTime(0.0001, now + t)
+      gain.gain.exponentialRampToValueAtTime(0.3, now + t + 0.01)
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + t + len)
+      osc.connect(gain).connect(audio.destination)
+      osc.start(now + t)
+      osc.stop(now + t + len + 0.05)
+    }
+  } catch {
+    // 音が出せなくても、表示とバイブでお知らせする
+  }
+}
+
+/*
+  アプリを開いている間の見張り（0.25秒ごと）
+  ・音声が iPhone に止められていたら（音楽アプリの曲が変わった・画面が消えかけた など）、残り時間で流し直す
+  ・それでも流れていない残り5秒は、Web Audio で1秒ごとにピッと鳴らす（鳴ったり鳴らなかったりを防ぐ）
+*/
+let lastBeepSec: number | null = null
+let lastKick = 0
+let kicks = 0
+function watchSound() {
+  if (!countdownOn || state.status !== 'running') return
+  const left = remainingMs(state)
+  const visible = typeof document === 'undefined' || document.visibilityState === 'visible'
+  if (visible && media && !mediaActive() && left > 1500 && kicks < 3 && Date.now() - lastKick > 2000) {
+    lastKick = Date.now()
+    kicks++
+    playMedia(left)
+  }
+  const sec = Math.ceil(left / 1000)
+  if (sec >= 1 && sec <= 5 && sec !== lastBeepSec) {
+    lastBeepSec = sec
+    if (!mediaActive()) webBeep([[0, 880, 0.12]])
+  }
+}
+
+/** 休憩を始め直したとき：見張りの数を戻す */
+function resetWatch() {
+  lastBeepSec = null
+  lastKick = Date.now()
+  kicks = 0
+}
+
 function alertDone() {
   try {
     navigator.vibrate?.([200, 100, 200, 100, 400])
@@ -226,25 +288,12 @@ function alertDone() {
   }
   // カウントダウンの音声が流れていれば、終わりの音はその中に入っている（2回鳴らさない）
   // （「音楽を止めない」で裏に回ったときなど、iPhone が止めていたら、こちらで鳴らす）
-  if (!audio || (mediaPlaying && media && !media.paused)) return
-  try {
-    const now = audio.currentTime
-    ;[0, 0.25, 0.5].forEach((t, i) => {
-      const osc = audio!.createOscillator()
-      const gain = audio!.createGain()
-      osc.type = 'sine'
-      osc.frequency.value = i === 2 ? 1175 : 880
-      const len = i === 2 ? 0.35 : 0.15
-      gain.gain.setValueAtTime(0.0001, now + t)
-      gain.gain.exponentialRampToValueAtTime(0.3, now + t + 0.01)
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + t + len)
-      osc.connect(gain).connect(audio!.destination)
-      osc.start(now + t)
-      osc.stop(now + t + len + 0.05)
-    })
-  } catch {
-    // 音が出せなくても、表示とバイブでお知らせする
-  }
+  if (mediaActive()) return
+  webBeep([
+    [0, 880, 0.15],
+    [0.25, 880, 0.15],
+    [0.5, 1175, 0.35],
+  ])
 }
 
 /** 残りのミリ秒 */
@@ -258,6 +307,7 @@ export const restTimer = {
   start(seconds: number) {
     prepareSound()
     const ms = seconds * 1000
+    resetWatch()
     playMedia(ms)
     set({ status: 'running', endsAt: Date.now() + ms, pausedMs: null, totalMs: ms })
   },
@@ -269,6 +319,7 @@ export const restTimer = {
   resume() {
     if (state.status !== 'paused' || state.pausedMs === null) return
     prepareSound()
+    resetWatch()
     playMedia(state.pausedMs)
     set({ ...state, status: 'running', endsAt: Date.now() + state.pausedMs, pausedMs: null })
   },
@@ -277,10 +328,10 @@ export const restTimer = {
     const left = Math.max(0, remainingMs(state) + seconds * 1000)
     const total = Math.max(state.totalMs + seconds * 1000, left)
     if (state.status === 'running') {
+      resetWatch()
       playMedia(left)
       set({ ...state, endsAt: Date.now() + left, totalMs: total })
-    }
-    else if (state.status === 'paused') set({ ...state, pausedMs: left, totalMs: total })
+    } else if (state.status === 'paused') set({ ...state, pausedMs: left, totalMs: total })
   },
   reset() {
     stopMedia()

@@ -45,10 +45,13 @@ let audio: AudioContext | null = null
 
 // 残り5秒のカウントダウンを鳴らすか・どう鳴らすか（設定。端末のデータベースを見張って、いつも最新にしておく）
 let countdownOn = true
+let keepAwake = true
 let soundMode: RestSoundMode = 'mix'
 liveQuery(() => db.settings.get('me')).subscribe({
   next: (s) => {
     countdownOn = s?.restCountdown ?? true
+    keepAwake = s?.restKeepAwake ?? true
+    updateWakeLock()
     const mode = s?.restSoundMode ?? 'mix'
     if (!countdownOn || mode !== soundMode) stopMedia()
     soundMode = mode
@@ -86,6 +89,40 @@ function load(): RestState {
   }
 }
 
+/*
+  休憩中は画面を消さない（Screen Wake Lock。iPhone は iOS 16.4 から、ホーム画面のアプリは 18.4 から）
+  ・「音楽を止めない」の音は、画面が消えると iPhone に止められる → 休憩の間だけ画面をつけておく
+  ・電源ボタンで自分で消したときは防げない
+  ・アプリが裏に回ると勝手に外れるので、戻ってきたらかけ直す
+*/
+let wakeLock: WakeLockSentinel | null = null
+let wakeRequesting = false
+function updateWakeLock() {
+  if (typeof navigator === 'undefined' || !('wakeLock' in navigator)) return
+  const want = keepAwake && state.status === 'running' && document.visibilityState === 'visible'
+  if (want && !wakeLock && !wakeRequesting) {
+    wakeRequesting = true
+    navigator.wakeLock
+      .request('screen')
+      .then((w) => {
+        wakeLock = w
+        w.addEventListener('release', () => {
+          if (wakeLock === w) wakeLock = null
+        })
+        // かけている間に休憩が終わっていたら、すぐ外す
+        if (!(keepAwake && state.status === 'running')) updateWakeLock()
+      })
+      .catch(() => {
+        // 電池が少ないときなど、断られたらそのまま
+      })
+      .finally(() => (wakeRequesting = false))
+  } else if (!want && wakeLock) {
+    const w = wakeLock
+    wakeLock = null
+    void w.release().catch(() => {})
+  }
+}
+
 function set(next: RestState) {
   state = next
   try {
@@ -94,6 +131,7 @@ function set(next: RestState) {
     // 保存できなくても、タイマーそのものは動かす
   }
   updateTicker()
+  updateWakeLock()
   notify()
 }
 
@@ -200,6 +238,7 @@ function playMedia(leftMs: number) {
 */
 if (typeof document !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
+    updateWakeLock()
     if (document.visibilityState !== 'visible' || state.status !== 'running') return
     if (countdownOn && media && media.paused) playMedia(remainingMs(state))
   })

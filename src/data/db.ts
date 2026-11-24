@@ -50,6 +50,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   restAuto: true,
   restCountdown: true,
   restSoundMode: 'mix',
+  restKeepAwake: true,
   lastExportAt: null,
   effects: true,
   voltColor: 'cyan',

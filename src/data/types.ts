@@ -130,6 +130,8 @@ export type UserSettings = {
   restCountdown: boolean
   /** 休憩の音の鳴らし方：mix＝音楽を止めない（閉じると鳴らないことがある）／background＝閉じても鳴る（音楽は止まる） */
   restSoundMode: RestSoundMode
+  /** 休憩中は画面を消さない（画面が消えると「音楽を止めない」の音が止まるため） */
+  restKeepAwake: boolean
   /** 最後に書き出した日時（まだなら null） */
   lastExportAt: number | null
   /** 稲妻の演出（セット完了・自己ベスト・今週のチャージ・スキルツリー）を出すか */

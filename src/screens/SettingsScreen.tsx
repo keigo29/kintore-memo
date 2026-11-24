@@ -188,7 +188,7 @@ export function SettingsScreen({ onBack, onToast }: Props) {
               <span className="field-help">
                 {settings.restSoundMode === 'background'
                   ? 'アプリを閉じても、画面を消しても鳴ります。iPhone では、流している音楽が止まります'
-                  : '音楽を流したまま、上から鳴らします。マナーモードでは鳴りません。画面を消したりアプリを閉じたりすると鳴らないことがあります'}
+                  : '音楽を流したまま、上から鳴らします。マナーモードでは鳴りません。画面が消えていたり、アプリを閉じていたりすると鳴りません'}
               </span>
             </div>
             <div className="seg" role="radiogroup" aria-label="音の鳴らし方">
@@ -206,6 +206,13 @@ export function SettingsScreen({ onBack, onToast }: Props) {
                 </button>
               ))}
             </div>
+          </div>
+          <div className="settings-row">
+            <div>
+              <span className="settings-name">休憩中は画面を消さない</span>
+              <span className="field-help">画面が自動で消えると、「音楽を止めない」の音は鳴りません。休憩の間だけ画面をつけておきます（電源ボタンで消したときは鳴りません）</span>
+            </div>
+            <Switch checked={settings.restKeepAwake} onChange={(v) => set({ restKeepAwake: v })} label="休憩中は画面を消さない" />
           </div>
         </div>
       </div>

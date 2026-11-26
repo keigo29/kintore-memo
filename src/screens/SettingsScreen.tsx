@@ -1,10 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ChevronLeft, CloudUpload, Download, Minus, Monitor, Moon, Plus, Sun, Upload } from 'lucide-react'
+import { ChevronLeft, CloudDownload, CloudUpload, Download, Minus, Monitor, Moon, Plus, Sun, Upload } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Dialog } from '../components/Dialog'
 import { CalcHelp } from '../components/SessionReport'
 import { Switch } from '../components/Switch'
-import { clearCmdSync, getCmdSync, isCmdSyncReady, pushToCmd, setCmdSync } from '../data/cmdSync'
+import { clearCmdSync, getCmdSync, isCmdSyncReady, pullMenusFromCmd, pushToCmd, setCmdSync } from '../data/cmdSync'
 import type { CmdSync } from '../data/cmdSync'
 import { countBackup, deleteAllData, exportBackup, markExported, restoreBackup } from '../data/backup'
 import { backupFileName, parseBackup } from '../data/backupFormat'
@@ -420,6 +420,19 @@ function CmdSyncCard({ onToast }: { onToast: (message: string) => void }) {
   const save = (patch: Partial<CmdSync>) => setSync(setCmdSync(patch))
   const ready = isCmdSyncReady(sync)
 
+  const onPullMenus = async () => {
+    setBusy(true)
+    try {
+      const r = await pullMenusFromCmd(false)
+      onToast(`メニューを読み込みました（${r.menus}件${r.created.length ? `・新しい種目：${r.created.join('、')}` : ''}）`)
+    } catch (e) {
+      onToast((e as Error).message)
+    } finally {
+      setSync(getCmdSync())
+      setBusy(false)
+    }
+  }
+
   const onPush = async () => {
     setBusy(true)
     try {
@@ -435,10 +448,10 @@ function CmdSyncCard({ onToast }: { onToast: (message: string) => void }) {
 
   return (
     <div>
-      <h2 className="section-title">Cmd に保存（AI で分析）</h2>
+      <h2 className="section-title">Cmd と連携（AI で分析・メニュー）</h2>
       <div className="card settings-backup">
         <p className="field-help">
-          バックアップを GitHub の自分のリポジトリ（Cmd）に置きます。Cmd の中でノートと表に作り直され、AI で分析できます。
+          バックアップを GitHub の自分のリポジトリ（Cmd）に置きます。Cmd の中でノートと表に作り直され、AI で分析できます。AI が Cmd のメニューのノートを直すと、アプリのメニューに読み込めます。
           トークンは Fine-grained personal access token で、対象は Cmd だけ、権限は Contents の Read and write にしてください。トークンはこの端末にだけ保存し、バックアップのファイルにも入りません。
         </p>
         <label className="field">
@@ -467,6 +480,13 @@ function CmdSyncCard({ onToast }: { onToast: (message: string) => void }) {
           </div>
           <Switch checked={sync.auto} onChange={(v) => save({ auto: v })} label="終えたら自動で保存" />
         </div>
+        <div className="settings-row">
+          <div>
+            <span className="settings-name">開いたときにメニューを読み込む</span>
+            <span className="field-help">Cmd の「{sync.menuPath}」が変わっていたら、アプリのメニューにします（同じ名前のメニューは上書き）</span>
+          </div>
+          <Switch checked={sync.menuAuto} onChange={(v) => save({ menuAuto: v })} label="開いたときにメニューを読み込む" />
+        </div>
         <p className={sync.lastError ? 'settings-last is-stale' : 'settings-last'}>
           {sync.lastError
             ? `前回は失敗：${sync.lastError}`
@@ -492,6 +512,13 @@ function CmdSyncCard({ onToast }: { onToast: (message: string) => void }) {
             トークンを消す
           </button>
         </div>
+        <p className="settings-last">
+          {sync.menuAt === null ? 'メニューはまだ読み込んでいません' : `最後にメニューを読み込んだ日：${formatDate(sync.menuAt)}`}
+        </p>
+        <button type="button" className="btn btn-lg" disabled={!ready || busy} onClick={() => void onPullMenus()}>
+          <CloudDownload strokeWidth={2} aria-hidden />
+          Cmd のメニューを読み込む
+        </button>
       </div>
     </div>
   )

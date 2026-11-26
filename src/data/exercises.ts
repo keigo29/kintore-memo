@@ -1,6 +1,7 @@
 import { db } from './db'
 import type { MuscleGroup } from './muscleGroups'
 import type { Exercise } from './types'
+import { normalize } from './normalize'
 
 /*
   種目のデータ操作
@@ -8,14 +9,7 @@ import type { Exercise } from './types'
     （削除すると、その種目を使った過去の記録の名前が分からなくなるため）
 */
 
-/** 検索や重なりチェック用に、文字を揃える：全角英数→半角、ひらがな→カタカナ、大文字→小文字、空白を消す */
-export function normalize(text: string): string {
-  return text
-    .normalize('NFKC')
-    .replace(/[ぁ-ゖ]/g, (c) => String.fromCharCode(c.charCodeAt(0) + 0x60))
-    .toLowerCase()
-    .replace(/\s+/g, '')
-}
+export { normalize } from './normalize'
 
 /** 同じ名前の種目がすでにあるか（隠した種目も含む。exceptId は自分自身を除くため） */
 export async function findSameName(name: string, exceptId?: string): Promise<Exercise | undefined> {

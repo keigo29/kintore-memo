@@ -5,6 +5,7 @@ import { TabBar } from './components/TabBar'
 import type { TabId } from './components/TabBar'
 import { useToast } from './components/Toast'
 import { db } from './data/db'
+import { autoPullMenus } from './data/cmdSync'
 import { getSettings } from './data/settings'
 import { getSkillTree, unseenSkills } from './data/skills'
 import { itemsFromSession, startFromTemplate } from './data/templates'
@@ -68,6 +69,12 @@ export default function App() {
     // 稲妻の演出のオン／オフと電気の色
     applyEffects(look.effects, look.volt)
   }, [look?.theme, look?.effects, look?.volt])
+
+  // アプリを開いたとき、Cmd のメニューのノートが変わっていれば読み込む（設定でオンのとき）
+  useEffect(() => {
+    void autoPullMenus().then((message) => message && toast.show(message))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // アプリを開いたとき、トレーニングの途中だったら、その画面から続ける
   const resumed = useRef(false)

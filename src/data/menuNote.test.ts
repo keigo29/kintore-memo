@@ -38,8 +38,8 @@ describe('メニューのノート', () => {
       { name: 'シーテッドロウ', sets: 3 },
     ].map((x) => expect.objectContaining(x)))
     expect(menus[1].items).toEqual([expect.objectContaining({ name: 'スクワット', sets: 3 })])
-    // 「／」から後ろはメモ。「5〜8回 70kg」はメモの中なので、回数・重さにはしない
-    expect(menus[0].items[0]).toMatchObject({ memo: '5〜8回 70kg', repsMin: null, weightKg: null })
+    // 「／」のすぐ後ろが回数・重さだけなら、目標として読む
+    expect(menus[0].items[0]).toMatchObject({ memo: null, repsMin: 5, repsMax: 8, weightKg: 70 })
   })
 
   it('回数・重さ・自重・メモを読む（順番は自由、全角の数字も）', () => {
@@ -48,12 +48,16 @@ describe('メニューのノート', () => {
 - 懸垂 2セット 6-10回 自重
 - フェイスプル（肩） １５回 ３セット 22.5kg
 - プランク 3セット できるだけ
-- レッグレイズ ×3`)
+- レッグレイズ ×3
+- スクワット 3セット ／ 5〜8回 130kg ／ 3セットとも8回で 132.5kg
+- ディップス 2セット ／ 胸を張る`)
     expect(m.items[0]).toMatchObject({ name: 'ベンチプレス', sets: 3, repsMin: 5, repsMax: 8, weightKg: 70, memo: '2秒で下ろす' })
     expect(m.items[1]).toMatchObject({ name: '懸垂', sets: 2, repsMin: 6, repsMax: 10, weightKg: null, bodyweight: true })
     expect(m.items[2]).toMatchObject({ name: 'フェイスプル（肩）', sets: 3, repsMin: 15, repsMax: 15, weightKg: 22.5 })
     expect(m.items[3]).toMatchObject({ name: 'プランク', sets: 3, repsMin: null })
     expect(m.items[4]).toMatchObject({ name: 'レッグレイズ', sets: 3 })
+    expect(m.items[5]).toMatchObject({ name: 'スクワット', sets: 3, repsMin: 5, repsMax: 8, weightKg: 130, memo: '3セットとも8回で 132.5kg' })
+    expect(m.items[6]).toMatchObject({ name: 'ディップス', sets: 2, repsMin: null, memo: '胸を張る' })
   })
 
   it('目標の文', () => {

@@ -8,6 +8,7 @@ import type { MuscleGroup } from './muscleGroups'
   ノートの形：
     ## 上半身A                                  ← 「## 」の見出しが1つのメニュー（名前）
     - ベンチプレス 3セット 5〜8回 70kg ／ 2秒で下ろす ← 種目名・セット数・回数・重さ。「／」から後ろはメモ
+    - ベンチプレス 3セット ／ 5〜8回 70kg ／ 2秒で下ろす ← 「／」のすぐ後ろが回数・重さだけなら、それも目標として読む
     - 懸垂 2セット 6〜10回 自重
     - ケーブルクロス（胸） 2セット 12〜15回 20kg   ← アプリにない種目は、（筋群）を付けると、その筋群で新しく作る
   ・セット数・回数・重さは、どれもなくてよい。順番も自由
@@ -62,23 +63,30 @@ export function parseMenuNote(text: string): MenuNote[] {
 // 種目名の後ろに続く「3セット」「8〜12回」「60kg」「自重」「できるだけ」（全角の数字も読む）
 const TOKEN = /(\d+)\s*(?:セット|sets?)|(\d+)\s*(?:[〜~～\-–]\s*(\d+)\s*)?(?:回|reps?)|(\d+(?:\.\d+)?)\s*kg|自重|できるだけ|[x×]\s*(\d+)(?!\s*(?:回|kg|reps?))/gi
 
+/** 全角の数字だけ半角にする（種目名の（）はそのまま残す） */
+const halfDigits = (s: string) => s.replace(/[０-９．]/g, (c) => (c === '．' ? '.' : String.fromCharCode(c.charCodeAt(0) - 0xfee0)))
+
+/** 目標の言葉（回数・重さ・自重・できるだけ）だけでできた文か */
+const onlyTargets = (s: string) => s.trim() !== '' && s.replace(TOKEN, '').replace(/[\s・,、]/g, '') === ''
+
 function parseItem(raw: string): MenuLine | null {
-  // 「／」「 / 」から後ろはメモ
+  // 「／」「 / 」で区切る。1つ目が種目名（とセット数など）、そのあとはメモ
+  // ただし2つ目が「5〜8回 70kg」のように目標の言葉だけなら、目標として読む
+  //   （「- ベンチプレス 3セット ／ 5〜8回 70kg ／ メモ」は、前の版のアプリでも種目名を正しく読める書き方）
   const [headRaw, ...rest] = raw.split(/／|\s\/\s/)
+  let targetPart = ''
+  if (rest.length && onlyTargets(halfDigits(rest[0]))) targetPart = halfDigits(rest.shift()!)
   const memo = rest.join('／').trim() || null
-  // 全角の数字だけ半角にする（種目名の（）はそのまま残す）
-  const head = headRaw
-    .replace(/\*\*/g, '')
-    .replace(/[０-９．]/g, (c) => (c === '．' ? '.' : String.fromCharCode(c.charCodeAt(0) - 0xfee0)))
-    .trim()
+  const head = halfDigits(headRaw.replace(/\*\*/g, '')).trim()
   let sets: number | null = null
   let repsMin: number | null = null
   let repsMax: number | null = null
   let weightKg: number | null = null
   let bodyweight = false
   let first = -1
-  for (const m of head.matchAll(TOKEN)) {
-    if (first < 0) first = m.index ?? 0
+  const matches = [...head.matchAll(TOKEN)]
+  for (const m of [...matches, ...targetPart.matchAll(TOKEN)]) {
+    if (first < 0 && matches.includes(m)) first = m.index ?? 0
     if (m[1] || m[5]) sets = Number(m[1] ?? m[5])
     else if (m[2]) {
       repsMin = Number(m[2])

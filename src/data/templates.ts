@@ -1,7 +1,9 @@
 import { db } from './db'
 import type { MuscleGroup } from './muscleGroups'
 import type { WorkoutTemplate } from './types'
+import { formatTarget } from './menuNote'
 import { startSession } from './workout'
+import type { StartItem } from './workout'
 
 /*
   トレーニングメニュー
@@ -80,10 +82,20 @@ export async function itemsFromSession(sessionId: string): Promise<TemplateItem[
 export async function startFromTemplate(id: string): Promise<string | null> {
   const t = await db.templates.get(id)
   if (!t) return null
-  const items = []
+  const items: StartItem[] = []
   for (const i of t.items) {
     const e = await db.exercises.get(i.exerciseId)
-    if (e && !e.archived) items.push({ exerciseId: i.exerciseId, sets: i.targetSets ?? 1 })
+    if (!e || e.archived) continue
+    // メニューに目標の回数・重さがあれば（Cmd のノートから）、それをセットに入れて、画面にも出す
+    items.push({
+      exerciseId: i.exerciseId,
+      sets: i.targetSets ?? 1,
+      target: {
+        reps: i.repsMin ?? null,
+        weightKg: e.isBodyweight ? null : (i.weightKg ?? null),
+        text: formatTarget(i, e.isBodyweight),
+      },
+    })
   }
   return startSession(undefined, items, id)
 }

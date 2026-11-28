@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Check, ChevronLeft, ChevronRight, History, Plus, Trash2, Zap } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, History, Plus, Target, Trash2, Zap } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Dialog } from '../components/Dialog'
 import { ExercisePickerDialog } from '../components/ExercisePickerDialog'
@@ -192,8 +192,16 @@ export function ExerciseRecord({ workoutExerciseId, order, onOpen, onBack }: Pro
         )}
       </nav>
 
-      {/* 前回の記録 */}
+      {/* 前回の記録（メニューに目標があれば、その上に出す） */}
       <div className="card prev-card">
+        {we.target && (
+          <p className="prev-target">
+            <Target strokeWidth={2} aria-hidden />
+            <span>
+              今日の目標 <span className="num">{we.target}</span>
+            </span>
+          </p>
+        )}
         <div className="row-between">
           <span className="prev-title">
             <History strokeWidth={2} aria-hidden />

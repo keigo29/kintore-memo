@@ -155,7 +155,7 @@ export async function pullMenusFromCmd(onlyIfChanged = false): Promise<MenuPullR
         name: n.name,
         muscleGroup: n.muscleGroup,
         isCustom: true,
-        isBodyweight: false,
+        isBodyweight: n.isBodyweight,
         archived: false,
         createdAt: now,
       }
@@ -165,7 +165,14 @@ export async function pullMenusFromCmd(onlyIfChanged = false): Promise<MenuPullR
     }
     for (const t of plan.templates) {
       const items = t.items
-        .map((i) => ({ exerciseId: i.exerciseId ?? newIds.get(i.newKey ?? '') ?? '', targetSets: i.targetSets }))
+        .map((i) => ({
+          exerciseId: i.exerciseId ?? newIds.get(i.newKey ?? '') ?? '',
+          targetSets: i.targetSets,
+          repsMin: i.repsMin,
+          repsMax: i.repsMax,
+          weightKg: i.weightKg,
+          memo: i.memo,
+        }))
         .filter((i) => i.exerciseId !== '')
       if (t.id) await db.templates.update(t.id, { name: t.name, items, updatedAt: now })
       else await db.templates.add({ id: crypto.randomUUID(), name: t.name, items, createdAt: now, updatedAt: now })

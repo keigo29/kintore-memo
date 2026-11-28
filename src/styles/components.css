@@ -810,6 +810,24 @@
   height: 15px;
   color: var(--sub);
 }
+.prev-target {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.prev-target svg {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  margin-top: 2px;
+  color: var(--phase-set);
+}
 .prev-chips {
   display: flex;
   flex-wrap: wrap;

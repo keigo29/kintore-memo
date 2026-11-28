@@ -37,7 +37,12 @@ export type CmdSync = {
   menuSha: string | null
   /** 最後にメニューを読み込んだ日時 */
   menuAt: number | null
+  /** 最後に読み込んだときの読み方の版（読み方が変わったら、ノートが同じでも読み直す） */
+  menuParser?: number
 }
+
+/** ノートの読み方の版。1：セット数だけ／2：回数・重さ・メモも */
+const MENU_PARSER = 2
 
 export const DEFAULT_CMD_SYNC: CmdSync = {
   token: '',
@@ -140,7 +145,7 @@ export async function pullMenusFromCmd(onlyIfChanged = false): Promise<MenuPullR
   } catch (e) {
     throw new Error(e instanceof TypeError ? 'つながりませんでした。電波を確認してください' : (e as Error).message)
   }
-  if (onlyIfChanged && sha && sha === c.menuSha) return { changed: false, menus: 0, created: [] }
+  if (onlyIfChanged && sha && sha === c.menuSha && c.menuParser === MENU_PARSER) return { changed: false, menus: 0, created: [] }
   const menus = parseMenuNote(text)
   if (menus.length === 0) throw new Error('ノートに「## メニュー名」が見つかりませんでした')
 
@@ -155,7 +160,7 @@ export async function pullMenusFromCmd(onlyIfChanged = false): Promise<MenuPullR
         name: n.name,
         muscleGroup: n.muscleGroup,
         isCustom: true,
-        isBodyweight: false,
+        isBodyweight: n.isBodyweight,
         archived: false,
         createdAt: now,
       }
@@ -165,13 +170,20 @@ export async function pullMenusFromCmd(onlyIfChanged = false): Promise<MenuPullR
     }
     for (const t of plan.templates) {
       const items = t.items
-        .map((i) => ({ exerciseId: i.exerciseId ?? newIds.get(i.newKey ?? '') ?? '', targetSets: i.targetSets }))
+        .map((i) => ({
+          exerciseId: i.exerciseId ?? newIds.get(i.newKey ?? '') ?? '',
+          targetSets: i.targetSets,
+          repsMin: i.repsMin,
+          repsMax: i.repsMax,
+          weightKg: i.weightKg,
+          memo: i.memo,
+        }))
         .filter((i) => i.exerciseId !== '')
       if (t.id) await db.templates.update(t.id, { name: t.name, items, updatedAt: now })
       else await db.templates.add({ id: crypto.randomUUID(), name: t.name, items, createdAt: now, updatedAt: now })
     }
   })
-  setCmdSync({ menuSha: sha, menuAt: Date.now() })
+  setCmdSync({ menuSha: sha, menuAt: Date.now(), menuParser: MENU_PARSER })
   return { changed: true, menus: menus.length, created }
 }
 

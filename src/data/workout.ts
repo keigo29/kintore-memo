@@ -19,7 +19,9 @@ export async function getLastDoneSession(): Promise<WorkoutSession | undefined> 
 }
 
 /** 新しいトレーニングを始めるときの中身：種目と、用意するセット数 */
-export type StartItem = { exerciseId: string; sets: number }
+/** 始めるときの種目。target はメニューの目標（回数・重さはセットに入れる。text は画面に出す） */
+export type StartItem = { exerciseId: string; sets: number; target?: SetTarget }
+export type SetTarget = { reps: number | null; weightKg: number | null; text: string | null }
 
 /**
  * 新しいトレーニングを始める
@@ -51,7 +53,7 @@ export async function startSession(copyFrom?: string, items?: StartItem[], templ
         list.push({ exerciseId: we.exerciseId, sets: Math.max(1, n) })
       }
     }
-    for (const item of list) await addExerciseToSession(id, item.exerciseId, item.sets)
+    for (const item of list) await addExerciseToSession(id, item.exerciseId, item.sets, item.target)
   })
   return id
 }
@@ -86,16 +88,21 @@ export async function getPrevious(exerciseId: string, exceptSessionId: string): 
 /**
  * 種目を加える。setCount の数だけセットを用意する（完了はしていない状態）
  * 値は前回の同じ番号の本番セットから入れる（なければ前回の最後のセット）
+ * メニューの目標（target）があれば、重さ・回数は目標のほうを入れる（本番セットとして）
  */
-export async function addExerciseToSession(sessionId: string, exerciseId: string, setCount = 1): Promise<string> {
+export async function addExerciseToSession(sessionId: string, exerciseId: string, setCount = 1, target?: SetTarget): Promise<string> {
   const id = crypto.randomUUID()
   const count = await db.workoutExercises.where('sessionId').equals(sessionId).count()
-  await db.workoutExercises.add({ id, sessionId, exerciseId, order: count, note: null })
+  await db.workoutExercises.add({ id, sessionId, exerciseId, order: count, note: null, target: target?.text ?? null })
   const prev = await getPrevious(exerciseId, sessionId)
   const normals = prev?.sets.filter((s) => s.kind === 'normal') ?? []
   for (let i = 0; i < Math.max(1, setCount); i++) {
     const from = normals[i] ?? normals[normals.length - 1] ?? prev?.sets[0]
-    await db.sets.add(newSet(id, sessionId, i, from))
+    const set = newSet(id, sessionId, i, from)
+    if (target?.weightKg != null || target?.reps != null) set.kind = 'normal'
+    if (target?.weightKg != null) set.weightKg = target.weightKg
+    if (target?.reps != null) set.reps = target.reps
+    await db.sets.add(set)
   }
   return id
 }

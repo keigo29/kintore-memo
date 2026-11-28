@@ -23,11 +23,27 @@ export type Exercise = {
   createdAt: number
 }
 
+/**
+ * メニューの1種目
+ * ・repsMin〜repsMax・weightKg・memo は、Cmd のメニューのノート（AI が書く）から入る。アプリで作ったメニューにはない
+ */
+export type TemplateItemData = {
+  exerciseId: string
+  targetSets: number | null
+  /** 目標の回数（8〜12回なら 8 と 12。1つなら同じ数） */
+  repsMin?: number | null
+  repsMax?: number | null
+  /** 目標の重さ（kg） */
+  weightKg?: number | null
+  /** メモ（休憩の長さ・やり方など） */
+  memo?: string | null
+}
+
 /** トレーニングメニュー（並びは items の順番） */
 export type WorkoutTemplate = {
   id: string
   name: string
-  items: { exerciseId: string; targetSets: number | null }[]
+  items: TemplateItemData[]
   createdAt: number
   updatedAt: number
 }
@@ -55,6 +71,8 @@ export type WorkoutExercise = {
   /** 並び順（0 から） */
   order: number
   note: string | null
+  /** メニューの目標（例：「3セット × 8〜12回・60kg ／ 2秒で下ろす」）。メニューから始めたときだけ */
+  target?: string | null
 }
 
 /** あと何回できたか：0〜10、または「分からない」 */
